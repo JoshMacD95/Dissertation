@@ -6,8 +6,8 @@
 # ==== Potential Energy Function ==== 
 # (-log(target))
 
-Gaussian = function(q, sigma = 1){
-  return(-log(dnorm(q,0,sigma)))
+Gaussian = function(q, V){
+  return(-dmvn(q, 0, V, log = TRUE))
 }
 
 grad.Gaussian= function(q){
@@ -17,7 +17,7 @@ grad.Gaussian= function(q){
 # Kinetic Energy Function
 # Acts as a proposal in HMC
 squared.kinetic = function(rho,m){
-  return(0.5*rho^2/m)
+  return(sum(0.5*rho^2/m))
 } 
 
 # ==== Output for HMC Algorithm ====

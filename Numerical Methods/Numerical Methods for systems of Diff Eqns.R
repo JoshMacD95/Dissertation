@@ -34,18 +34,35 @@ rho_t = function(q0, m, t){
 
 
 Euler = function(q0, rho0, m, timestep, obs.time, grad.U){
-  q.values = c(q0)
-  rho.values = c(rho0)
+  
+  # Making sure mass is defined in each 'dimension'
+  if(length(m) == 1){
+    m = rep(m, length(rho0))
+  }
+  if(length(m) != length(rho0)){
+    return(print("Error: mass not specified for every direction of motion"))
+  }
+  
+  # d - dimensions
+  d = length(q0)
+  
+  #
+  q.values = matrix(q0, nrow = 1, ncol = d)
+  rho.values = matrix(rho0, nrow = 1, ncol = d)
   
   i = 1
   while(i*timestep < obs.time){
-    rho.values[i+1] = rho.values[i] - timestep*grad.U(q.values[i])
-    q.values[i+1] = q.values[i] + timestep*rho.values[i]/m
+    # Adding empty row to fill with new position and momentum values
+    q.values = rbind(q.values, rep(0,d))
+    rho.values = rbind(rho.values, rep(0,d))
+    for (j in 1:d){
+    rho.values[i+1,j] = rho.values[i,j] - timestep*grad.U(q.values[i,j])
+    q.values[i+1,j] = q.values[i,j] + timestep*rho.values[i,j]/m[j]
+    }
     i = i + 1
   }
   return(cbind(q.values, rho.values))
 }
-
 
 # ===================
 # ==== Modified Euler
@@ -53,19 +70,32 @@ Euler = function(q0, rho0, m, timestep, obs.time, grad.U){
 
 Euler.mod = function(q0, rho0, m, timestep, obs.time, grad.U){
   
-  q.values = c(q0)
-  rho.values = c(rho0)
+  # Making sure mass is defined in each 'dimension'
+  if(length(m) == 1){
+    m = rep(m, length(rho0))
+  }
+  if(length(m) != length(rho0)){
+    return(print("Error: mass not specified for every direction of motion"))
+  }
   
+  # d - dimensions
+  d = length(q0)
+  
+  q.values = matrix(q0, nrow = 1, ncol = d)
+  rho.values = matrix(rho0, nrow = 1, ncol = d)
   i = 1
   while(i*timestep < obs.time){
-    rho.values[i+1] = rho.values[i] - timestep*grad.U(q.values[i])
-    q.values[i+1] = q.values[i] + timestep*rho.values[i+1]/m
+    # Adding empty row to fill with new position and momentum values
+    q.values = rbind(q.values, rep(0, d))
+    rho.values = rbind(rho.values, rep(0,d))
+    for(j in 1:d){
+      rho.values[i+1,j] = rho.values[i,j] - timestep*grad.U(q.values[i,j])
+      q.values[i+1,j] = q.values[i,j] + timestep*rho.values[i+1,j]/m[j]
+    }
     i = i + 1
   }
   return(cbind(q.values, rho.values))
 }
-
-
 
 #=====================
 # ==== Leapfrog method
@@ -73,14 +103,30 @@ Euler.mod = function(q0, rho0, m, timestep, obs.time, grad.U){
 
 leapfrog = function(q0, rho0, m, timestep, obs.time, grad.U){
   
-  q.values = c(q0)
-  rho.values = c(rho0)
+  # Making sure mass is defined in each 'dimension'
+  if(length(m) == 1){
+    m = rep(m, length(rho0))
+  }
+  if(length(m) != length(rho0)){
+    return(print("Error: mass not specified for every direction of motion"))
+  }
+  
+  # d - dimensional problem
+  d = length(q0)
+  
+  q.values = matrix(q0, nrow = 1, ncol = d)
+  rho.values = matrix(rho0, nrow = 1, ncol = d)
   
   i = 1
   while(i*timestep < obs.time){
-    rho_halfeps = rho.values[i] - 0.5*timestep*grad.U(q.values[i])
-    q.values[i+1] = q.values[i] + timestep*rho_halfeps/m
-    rho.values[i+1] = rho_halfeps- 0.5*timestep*grad.U(q.values[i+1])
+    # Adding empty row to fill with new position and momentum values
+    q.values = rbind(q.values, rep(0, d))
+    rho.values = rbind(rho.values, rep(0,d))
+    for(j in 1:d){
+      rho_halfeps = rho.values[i,j] - 0.5*timestep*grad.U(q.values[i,j])
+      q.values[i+1,j] = q.values[i,j] + timestep*rho_halfeps/m[j]
+      rho.values[i+1,j] = rho_halfeps- 0.5*timestep*grad.U(q.values[i+1,j])
+    }
     i = i + 1
   }
   return(cbind(q.values, rho.values))
@@ -91,13 +137,13 @@ leapfrog = function(q0, rho0, m, timestep, obs.time, grad.U){
 # =====================
 
 numerical.method = function(q0, rho0, m, timestep, obs.time, grad.U, method, print = FALSE, final = TRUE){
-  
+  d = length(q0)
   # Run the choice of numerical method
   result = method(q0, rho0, m, timestep, obs.time, grad.U)
   
   # Store the final position and momentum values
-  q.star = tail(result, n = 1)[1]
-  rho.star = tail(result, n = 1)[2]
+  q.star = tail(result, n = 1)[,1:d]
+  rho.star = tail(result, n = 1)[, (d+1):(2*d)]
   
   
   # Following code prints the information about the results, if
@@ -124,7 +170,7 @@ numerical.method = function(q0, rho0, m, timestep, obs.time, grad.U, method, pri
     #print(paste(c("Method:", method.name)), sep = "", collapse = "")
     print(paste(c("Starting Point:", q0, rho0)), sep = "", collapse = "")
     print(paste(c("Result:", q.star, rho.star)), sep = "", collapse = "")
-    print(paste(c("Reverse:", reverse[1], reverse[2])), sep = "", collapse = "")
+    print(paste(c("Reverse:", reverse[,1:d], reverse[, (1+d):(2*d)])), sep = "", collapse = "")
   }
   if(final == TRUE){
     output = c(q.star, rho.star) 
@@ -134,3 +180,9 @@ numerical.method = function(q0, rho0, m, timestep, obs.time, grad.U, method, pri
   }
   return(output)
 }
+
+
+
+
+
+
