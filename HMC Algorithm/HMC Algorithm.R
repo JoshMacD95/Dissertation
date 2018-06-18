@@ -1,6 +1,6 @@
 #'
 #' Further Topics in MCMC
-#' MCMC Algorithm with Hamiltonian Dynamics
+#' 1 Dimension MCMC Algorithm with Hamiltonian Dynamics
 #' 
 #'
 
@@ -19,51 +19,55 @@ source('Numerical Methods/Numerical Methods for systems of Diff Eqns.R')
 # K is function of energy dependent on momentum parameters
 # Specific forms of the functions mentioned above should be defined in the 'Functions for HMC.R' file
 
-HMC = function(q0, V, m, timestep, obs.time, U, grad.U, K, method, no.its){
+Univariate.HMC = function(q0, V, m, L, obs.time, U, grad.U, K, method, no.its){
+  # Initial Potenial Energy (-log(posterior))
+  U0 = U(q0, V)
   
   q.curr = q0
-  d = length(q0)
+  U.curr = U0
+  
   no.accept = 0
-  draws = c()
+  draws = matrix(nrow = no.its, ncol = 2, byrow = FALSE, data = 0)
+  
+
   for(i in 1:no.its){
-    
     # Momentum Step
     # Draw new momentum value
-    
-    rho.curr = rmvn(1, mu = rep(0,d), sigma = diag(m, nrow = d, ncol = d))
+    rho.curr = rnorm(1, mean = 0, sd = m)
+    K.curr = K(rho.curr, m) # Kinetic Energy
     
     # Hamiltonian Dynamics (Leapfrog)
-    q = q.curr
-    rho = rho.curr
+    ham.dyn = numerical.method(q.curr, rho.curr, m, L, obs.time, grad.U, method, final = TRUE)
     
-    U.curr = U(q.curr, V)
-    K.curr = K(rho.curr, m)
-
-    ham.dyn = numerical.method(q, rho, m, timestep, obs.time, grad.U, method, final = TRUE)
-    
-    q.prop = ham.dyn[1:d]
-    rho.prop = -ham.dyn[(d+1):(2*d)]
+    q.prop = ham.dyn[,1]
+    rho.prop = -ham.dyn[,2]
     
     U.prop = U(q.prop, V)
     K.prop = K(rho.prop, m)
-    
     
     # accept-reject step
     alpha = exp(- U.prop - K.prop + U.curr + K.curr)
     
     if(runif(1) < alpha){
+      # Update position and -log posterior
       q.curr = q.prop
-      draws[i] = q.curr
-      # Not completely neccesarry as new value drawn
-      rho.curr = rho.prop
+      U.curr = U(q.prop, V)
+      
+      # Store New values
+      draws[i,1] = q.curr
+      draws[i,2] = U.curr
+    
+      rho.curr = rho.prop # Not completely neccesarry as new value drawn
+      
       no.accept = no.accept + 1
     }
     else{
-     draws[i] = q.curr
+     draws[i,1] = q.curr
+     draws[i,2] = U.curr
     }
   }
   # Calculating Effective Sample Size
-  ESS = effectiveSize(draws)
+  ESS = effectiveSize(draws[,1])
   
   # Calculating Acceptance Rate
   accept.rate = no.accept/no.its
@@ -74,32 +78,29 @@ HMC = function(q0, V, m, timestep, obs.time, U, grad.U, K, method, no.its){
   return(draws)
 }
 
-q0 = 0
-V = 1
+test.HMC = Univariate.HMC(q0 = 0, V = 1, m = 1, L = 15.7, obs.time = (3/2)*pi, U = Gaussian, grad.U = grad.Gaussian, K = squared.kinetic, method = leapfrog, no.its = 10000)
 
-
-test.HMC = HMC(q0 = 0, V = 1, m = 1, timestep = 0.3, obs.time = (3/2)*pi, U = Gaussian, grad.U = grad.Gaussian, K = squared.kinetic, method = leapfrog, no.its = 10000)
-
+L = (3/2)*pi/0.3
 
 # Simulate Random Normal Data to compare with
 x = rnorm(100000, 0, 1)
 x = sort(x)
-qqnorm(x)
-par(mfrow = c(1,1))
-abline(a = 0, b = 1)
+
 
 # ==== Diagnostics ====
 
-plot(test.HMC, type = 'l') # Check for mixing and convergence
+par(mfrow = c(1,2))
 
-acf(test.HMC) # Check dependence in chain
+plot(test.HMC[,1], type = 'l') # Check for mixing and convergence
 
-qqnorm(test.HMC) # If Data is normal, use this to check distribution
+acf(test.HMC[,1]) # Check dependence in chain
+
+qqnorm(test.HMC[,1]) # If Data is normal, use this to check distribution
 
 abline(a = 0, b = 1) # The qqplot should follow this line if data is normal
 
 # Plots Histogram of samples and compares with the density of a normal dist.n       
-hist(test.HMC, freq = FALSE)
+hist(test.HMC[,1], freq = FALSE)
 pdf.x = dnorm(x)
 lines(x, pdf.x, col = 'blue')       
 
@@ -136,6 +137,12 @@ lines(x, pdf.x, col = 'blue')
 # Problem is Variance parameter, m = 0.5 seems like a good choice. Why?
 
 
+Gaussian(q = c(0,0), V = diag(c(1,1)))
 
+?dmvn
 
+q0 = 0
 
+U0 = Gaussian(q0, V = 1)
+
+draws = matrix(nrow  = 10000, ncol =2, byrow =FALSE, data = 0)
