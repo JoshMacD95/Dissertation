@@ -5,8 +5,6 @@
 
 # ===== Run Functions File ====
 
-setwd('H:/MSc Statistics/Dissertation/Hamiltonian Monte Carlo')
-#setwd('/Volumes/macdona8/MSc Statistics/Dissertation/Hamiltonian Monte Carlo')
 source('Numerical Methods for systems of Diff Eqns.R')
 
 t.seq = seq(0, 2*pi, by = 0.01)
@@ -17,7 +15,7 @@ rho.seq = sapply(t.seq, FUN = rho_t, q0 = 1, m = 1)
 
 # ==== Euler Method ====
 
-Euler.test = Euler(q0 = 1, rho0 = 0, m = 1, timestep = 0.3, obs.time = 4*pi)
+Euler.test = Euler(q0 = 1, rho0 = 0, m = 1, L = 20, obs.time = 2*pi, grad.U = grad.Gaussian)
 
 H.euler = c()
 
@@ -27,7 +25,7 @@ for(i in 1:nrow(Euler.test)){
 
 # ==== Modified Euler Method ====
 
-Euler.mod.test = Euler.mod(q0 = 1, rho0 = 0, m = 1, timestep = 0.3, obs.time = 4*pi)
+Euler.mod.test = Euler.mod(q0 = 1, rho0 = 0, m = 1, L = 100, obs.time = 2*pi, grad.U = grad.Gaussian)
 
 H.euler.mod = c()
 
@@ -37,7 +35,7 @@ for(i in 1:nrow(Euler.mod.test)){
 
 # ==== Leapfrog Method ====
 
-leapfrog.test = leapfrog(q0 = 1, rho0 = 0, m = 1, timestep = 0.3, obs.time = 4*pi)
+leapfrog.test = leapfrog(q0 = 1, rho0 = 0, m = 1, L = 100, obs.time = 2*pi, grad.U = grad.Gaussian)
 
 H.leapfrog = c()
 

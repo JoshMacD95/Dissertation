@@ -1,23 +1,27 @@
 #'
 #' Further Topics in MCMC
-#' Posterior Functions for HMC
+#' Functions for HMC
 #'
 
 # ==== Potential Energy Function ==== 
 # (-log(target))
 
+# Gaussian
 Gaussian = function(q, V){
-  return(-dmvn(q, 0, V, log = TRUE))
+  return(-dnorm(q, 0, V, log = TRUE))
 }
 
 grad.Gaussian= function(q){
   return(q)
 }
 
-# Kinetic Energy Function
+# Write Logistic Functions Here
+
+
+# ==== Kinetic Energy Function ====
 # Acts as a proposal in HMC
 squared.kinetic = function(rho,m){
-  return(sum(0.5*rho^2/m))
+  return(0.5*rho^2/m)
 } 
 
 # ==== Output for HMC Algorithm ====
