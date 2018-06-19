@@ -19,9 +19,10 @@ source('Numerical Methods/Numerical Methods for systems of Diff Eqns.R')
 # K is function of energy dependent on momentum parameters
 # Specific forms of the functions mentioned above should be defined in the 'Functions for HMC.R' file
 
-Univariate.HMC = function(q0, V, m, L, obs.time, U, grad.U, K, method, no.its){
+Univariate.HMC = function(q0, m, L, obs.time, U, grad.U, K, method=leapfrog, no.its, burn.in, output.type = "all"){
   # Initial Potenial Energy (-log(posterior))
-  U0 = U(q0, V)
+  time.start = Sys.time()
+  U0 = U(q0)
   
   q.curr = q0
   U.curr = U0
@@ -42,7 +43,7 @@ Univariate.HMC = function(q0, V, m, L, obs.time, U, grad.U, K, method, no.its){
     q.prop = ham.dyn[,1]
     rho.prop = -ham.dyn[,2]
     
-    U.prop = U(q.prop, V)
+    U.prop = U(q.prop)
     K.prop = K(rho.prop, m)
     
     # accept-reject step
@@ -51,7 +52,7 @@ Univariate.HMC = function(q0, V, m, L, obs.time, U, grad.U, K, method, no.its){
     if(runif(1) < alpha){
       # Update position and -log posterior
       q.curr = q.prop
-      U.curr = U(q.prop, V)
+      U.curr = U(q.prop)
       
       # Store New values
       draws[i,1] = q.curr
@@ -66,43 +67,31 @@ Univariate.HMC = function(q0, V, m, L, obs.time, U, grad.U, K, method, no.its){
      draws[i,2] = U.curr
     }
   }
+  draws = draws[-(1:burn.in),]
+  time.finish = Sys.time()
+  time.taken = time.finish - time.start
   # Calculating Effective Sample Size
   ESS = effectiveSize(draws[,1])
-  
+  ESS.per.sec = ESS/as.numeric(time.taken)
   # Calculating Acceptance Rate
   accept.rate = no.accept/no.its
   
   # Important Output
   output(U, K, ESS, accept.rate, q0 = q0, no.its)
-  
-  return(draws)
+  if(output.type == "all"){
+    return(list(sample = draws[,1], log.target = -draws[,2], ESS = ESS, ESS.per.sec =ESS.per.sec))
+  }
+  if(output.type == "ESS"){
+    return(ESS)
+  }
+  if(output.type == "ESS/sec"){
+    return(ESS.per.sec)
+  }
 }
 
-test.HMC = Univariate.HMC(q0 = 0, V = 1, m = 1, L = 15.7, obs.time = (3/2)*pi, U = Gaussian, grad.U = grad.Gaussian, K = squared.kinetic, method = leapfrog, no.its = 10000)
-
-L = (3/2)*pi/0.3
-
 # Simulate Random Normal Data to compare with
-x = rnorm(100000, 0, 1)
-x = sort(x)
-
-
-# ==== Diagnostics ====
-
-par(mfrow = c(1,2))
-
-plot(test.HMC[,1], type = 'l') # Check for mixing and convergence
-
-acf(test.HMC[,1]) # Check dependence in chain
-
-qqnorm(test.HMC[,1]) # If Data is normal, use this to check distribution
-
-abline(a = 0, b = 1) # The qqplot should follow this line if data is normal
-
-# Plots Histogram of samples and compares with the density of a normal dist.n       
-hist(test.HMC[,1], freq = FALSE)
-pdf.x = dnorm(x)
-lines(x, pdf.x, col = 'blue')       
+#x = rnorm(100000, 0, 1)
+#x = sort(x)
 
 # Information about effective sample size
 # https://golem.ph.utexas.edu/category/2014/12/effective_sample_size.html
@@ -116,7 +105,6 @@ lines(x, pdf.x, col = 'blue')
 
 #  Chosing an obs.time which is between and odd and even multiple of pi will fix these correlation problems
 #  giving samples with less correlaation (positive or negative)
-
 
 #'
 #'
@@ -135,14 +123,3 @@ lines(x, pdf.x, col = 'blue')
 # Increasing variance of chain
 
 # Problem is Variance parameter, m = 0.5 seems like a good choice. Why?
-
-
-Gaussian(q = c(0,0), V = diag(c(1,1)))
-
-?dmvn
-
-q0 = 0
-
-U0 = Gaussian(q0, V = 1)
-
-draws = matrix(nrow  = 10000, ncol =2, byrow =FALSE, data = 0)
