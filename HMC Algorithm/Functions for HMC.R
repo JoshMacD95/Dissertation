@@ -1,22 +1,29 @@
 #'
 #' Further Topics in MCMC
-#' Functions for HMC
+#' Functions for Univariate HMC
 #'
 
 # ==== Potential Energy Function ==== 
 # (-log(target))
 
-# Gaussian
-Gaussian = function(q, V){
-  return(-dnorm(q, 0, V, log = TRUE))
+# == Gaussian ==
+Gaussian = function(q){
+  return(-dnorm(q, 0, sd = 1, log = TRUE))
 }
 
 grad.Gaussian= function(q){
   return(q)
 }
 
-# Write Logistic Functions Here
+# == Logistic ==
 
+Logistic = function(q){
+  return(-log(exp(q)/(1+exp(q))^2))
+}
+
+grad.Logistic = function(q){
+  return(-1 + 2*exp(q)/(1+exp(q)))
+}
 
 # ==== Kinetic Energy Function ====
 # Acts as a proposal in HMC
