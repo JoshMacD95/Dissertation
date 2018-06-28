@@ -13,9 +13,9 @@ source("HMC Algorithm/Univariate HMC Algorithm.R")
 q0 = 0
 m = 1
 L = 15.7
-obs.time = (3/4)*pi
-U = Logistic
-grad.U = grad.Logistic
+obs.time = pi/2
+U = Gaussian
+grad.U = grad.Gaussian
 K = squared.kinetic
 method = leapfrog
 no.its = 10000
@@ -57,7 +57,8 @@ no.steps = c(1, 2, 4, 8, 16, 32, 64)
 ESS.matrix = matrix(nrow = length(obs.times), ncol = length(no.steps), data = 0)
 
 for(i in 1:length(obs.times)){
-  ESS.matrix[i,] = sapply(X = no.steps, FUN = Univariate.HMC, obs.time = obs.times[i], q0, m, 
+  for(j in 1:length(no.steps))
+  ESS.matrix[i,] = Univariate.HMC(q0, m, L = no.steps[j], obs.time = obs.times[i], 
                           U, grad.U, K, 
                           method, no.its, burn.in, output.type ="ESS")
 }

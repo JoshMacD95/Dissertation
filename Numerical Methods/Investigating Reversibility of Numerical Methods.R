@@ -17,11 +17,18 @@ source('Numerical Methods/Numerical Methods for systems of Diff Eqns.R')
 
 # Choose Initial position and momentum variables
 
-q0 = 0
-rho0 = 1
-m = 1
-L = 20
+q0 = c(0,0)
+d = length(q0)
+m = rep(1, d)
+rho0 = c(1,-1)
 obs.time = 2*pi
-grad.U = grad.Gaussian
+grad.U = grad.MultGauss
 
-a = numerical.method(q0, rho0, m, L, obs.time, grad.U, method=leapfrog, print = FALSE, final = FALSE)
+a = numerical.method(q0, rho0, m, L, obs.time, grad.U, method=leapfrog, 
+                     print = T, final = T)
+
+
+
+
+
+
