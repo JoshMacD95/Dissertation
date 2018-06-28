@@ -10,7 +10,6 @@ library(coda)
 library(mvnfast)
 source('Numerical Methods/Numerical Methods for systems of Diff Eqns.R')
 
-
 # ==== Hamiltonian Dynamics Equations
 
 
@@ -45,28 +44,23 @@ Univariate.HMC = function(q0, m, L, obs.time, U, grad.U, K, method=leapfrog, no.
     
     U.prop = U(q.prop)
     K.prop = K(rho.prop, m)
-    
+    print(U.prop)
+    print(K.prop)
     # accept-reject step
-    alpha = exp(- U.prop - K.prop + U.curr + K.curr)
-    
-    if(runif(1) < alpha){
+    if(runif(1) < exp(- U.prop - K.prop + U.curr + K.curr)){
       # Update position and -log posterior
       q.curr = q.prop
-      U.curr = U(q.prop)
-      
-      # Store New values
-      draws[i,1] = q.curr
-      draws[i,2] = U.curr
-    
+      U.curr = U.prop
       rho.curr = rho.prop # Not completely neccesarry as new value drawn
-      
+    
       no.accept = no.accept + 1
     }
-    else{
-     draws[i,1] = q.curr
-     draws[i,2] = U.curr
-    }
+
+    # Store New values
+    draws[i,1] = q.curr
+    draws[i,2] = U.curr
   }
+  
   draws = draws[-(1:burn.in),]
   time.finish = Sys.time()
   time.taken = time.finish - time.start

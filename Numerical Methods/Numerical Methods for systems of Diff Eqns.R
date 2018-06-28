@@ -110,10 +110,15 @@ leapfrog = function(q0, rho0, m, L, obs.time, grad.U){
   for(i in 1:L){
     rho_halfeps = rho.values[i,] - 0.5*(obs.time/L)*grad.U(q.values[i,])
     q.values[i+1,] = q.values[i,] + (obs.time/L)*rho_halfeps/m
-    rho.values[i+1,] = rho_halfeps- 0.5*(obs.time/L)*grad.U(q.values[i+1,])
+    rho.values[i+1,] = rho_halfeps - 0.5*(obs.time/L)*grad.U(q.values[i+1,])
   }
   return(cbind(q.values, rho.values))
 }
+
+
+
+
+
 
 # =====================
 # ==== General Function
@@ -125,8 +130,8 @@ numerical.method = function(q0, rho0, m, L, obs.time, grad.U, method, print = FA
   result = method(q0, rho0, m, L, obs.time, grad.U)
   
   # Store the final position and momentum values
-  q.star = tail(result, n = 1)[,1:d]
-  rho.star = tail(result, n = 1)[, (d+1):(2*d)]
+  q.star = result[L+1,1:d]
+  rho.star = result[L+1,(d+1):(2*d)]
   
   
   # Following code prints the information about the results, if

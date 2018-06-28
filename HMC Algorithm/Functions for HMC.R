@@ -3,6 +3,9 @@
 #' Functions for Univariate HMC
 #'
 
+# ==== Preamble ====
+library(mvnfast)
+
 # ==== Potential Energy Function ==== 
 # (-log(target))
 
@@ -25,10 +28,31 @@ grad.Logistic = function(q){
   return(-1 + 2*exp(q)/(1+exp(q)))
 }
 
+# == Multivariate Gaussian ==
+
+MultGauss = function(q){
+  return(-dmvn(q, mu = rep(0, length(q)), sigma = diag(rep(1, length(q))), log = TRUE))
+}
+
+grad.MultGauss = function(q){
+  return(q)
+}
+
+# == Product of Logistics ==
+
+prod_logistic = function(q){
+  return(sum(-log(exp(q)/(1+exp(q))^2)))
+}
+
+grad.prod_logistic = function(q){
+  return(-1 + 2*exp(q)/(1+exp(q)))
+}
+
+
 # ==== Kinetic Energy Function ====
 # Acts as a proposal in HMC
 squared.kinetic = function(rho,m){
-  return(0.5*rho^2/m)
+  return(sum(0.5*rho^2/m))
 } 
 
 # ==== Output for HMC Algorithm ====
