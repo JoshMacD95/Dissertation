@@ -32,9 +32,9 @@ Multivariate.HMC = function(q0, m, L, obs.time,
   U.curr = U0
   
   no.accept = 0
-  draws = matrix(data = 0, nrow = no.its + 1, ncol = d + 1)
+  draws = matrix(data = 0, nrow = no.its + 1, ncol = d + 2)
   
-  draws[1,] = c(q.curr, U.curr)
+  draws[1,] = c(q.curr, U.curr, U.curr)
   
   
   for(i in 2:(no.its+1)){
@@ -42,7 +42,7 @@ Multivariate.HMC = function(q0, m, L, obs.time,
     # Momentum Step
     rho.curr = rmvn(1, mu = rep(0,d), sigma = diag(m))
     K.curr = K(rho.curr, m)
-    
+    H.curr = U.curr + K.curr
     # Hamiltonian Dynamics 
     ham.dyn = numerical.method(q.curr, rho.curr, m, L, obs.time, grad.U, method, final = TRUE)
     q.prop = ham.dyn[,1]
@@ -50,10 +50,10 @@ Multivariate.HMC = function(q0, m, L, obs.time,
     
     U.prop = U(q.prop)
     K.prop = K(rho.prop, m)
+    H.prop = U.prop + K.prop
     
     # Accept-recject Step
-    
-    if(runif(1) < exp(- U.prop - K.prop + U.curr + K.curr)){
+    if(runif(1) < exp(-H.prop + H.curr)){
       
       # Update position and -log(posteriors)
       q.curr = q.prop
@@ -63,7 +63,7 @@ Multivariate.HMC = function(q0, m, L, obs.time,
       no.accept = no.accept + 1
     }
     
-    draws[i,] = c(q.curr, U.curr)
+    draws[i,] = c(q.curr, U.curr, H.curr)
   }
   draws = draws[-(1:burn.in),]
   time.finish = Sys.time()
@@ -75,9 +75,10 @@ Multivariate.HMC = function(q0, m, L, obs.time,
   accept.rate = no.accept/no.its
   
   # Important Output
-  output(U, K, ESS, accept.rate, q0 = q0, no.its)
+  output(U, K, ESS, accept.rate, q0, no.its)
   if(output.type == "all"){
-    return(list(sample = draws[,1:d], log.target = -draws[,d+1], ESS = ESS, ESS.per.sec =ESS.per.sec))
+    return(list(sample = draws[,1:d], log.target = -draws[,d+1], hamiltonian = draws[,d+2],  
+                ESS = ESS, ESS.per.sec = ESS.per.sec))
   }
   if(output.type == "ESS"){
     return(ESS)
@@ -86,50 +87,3 @@ Multivariate.HMC = function(q0, m, L, obs.time,
     return(ESS.per.sec)
   }
 }
-
-Test.MHMC = Multivariate.HMC(q0 = c(0,0), L = 100, obs.time = pi/2, m = 1, 
-                 U = MultGauss, grad.U = grad.MultGauss, K = squared.kinetic,
-                 no.its = 10000, burn.in = 1000, output.type = "all")
-
-Test.MHMC
-par(mfrow= c(1,2))
-plot(Test.MHMC$sample[,1], type = 'l')
-
-plot(Test.MHMC$sample[,2], type = 'l')
-
-x_1 = seq(from = -3, to = 3, length = 1000)
-x_2 = seq(from = -3, to = 3, length = 1000)
-mvn.values = matrix(data = NA, nrow = 1000, ncol = 1000)
-
-for(i in 1:1000){
-  for(j in 1:1000){
-    mvn.values[i,j] = dmvn(X = c(x_1[i], x_2[j]), mu = rep(0, 2), sigma = diag(rep(1, 2)))
-  }
-}
-
-contour(x_1, x_2, mvn.values)
-points(Test.MHMC$sample[,1], Test.MHMC$sample[,2])
-m = 1
-
-d = length(q0)
-
-if(length(m) == 1){
-  m = rep(m, d)
-}
-if(length(m) != d){
-  return(print("Mass vector not same dimension as Position vector"))
-}
-
-rho.curr = rmvn(1, mu = rep(0,d), sigma = diag(m))
-# Initial Potential Energy
-U0 = MultGauss(q=c(0,0))
-
-q.curr = q0
-U.curr = U0
-
-no.accept = 0
-draws = matrix(data = 0, nrow = no.its + 1, ncol = d + 1)
-
-draws[1,] = c(q.curr, U.curr)
-
-
