@@ -14,7 +14,7 @@ Gaussian = function(q){
   return(-dnorm(q, 0, sd = 1, log = TRUE))
 }
 
-grad.Gaussian= function(q){
+grad.Gaussian = function(q){
   return(q)
 }
 
@@ -29,15 +29,51 @@ grad.Logistic = function(q){
 }
 
 # == Multivariate Gaussian ==
+"
+U = function(x, mu, V, target){
+  if(target = "Gaussian"){
+    return(-dmvn(x, mu, sigma = V, 
+                 log = TRUE))
+  }
+  else if(target = "Logistic"){
+    return(sum(-log(exp(x)/(1+exp(x))^2)))
+  }
+  else{
+    stop("Please give a valid target:
+         'Gaussian'
+         'Logistic'
+         ")
+  }
+}
+"
+"
+grad.U = function(x, mu, V, target){
+  
+  if(target = "Gaussian"){
+    return(x%*%solve(V))
+  }
+  else if(target = "Logistic"){
+    return(-1 + 2*exp(x)/(1+exp(x)))
+  }
+  else{
+    stop("Please give a valid target:
+         'Gaussian'
+         'Logistic'
+         ")
+  }
+  
+}
+"
 
 MultGauss = function(q){
-  return(-dmvn(q, mu = rep(0, length(q)), sigma = diag(rep(1, length(q))), log = TRUE))
+  return(-dmvn(q, mu = rep(0, length(q)), sigma = V, 
+               log = TRUE))
 }
 
 grad.MultGauss = function(q){
-  return(q)
+  return(q%*%solve(V))
 }
-
+# %*%solve(V)
 # == Product of Logistics ==
 
 prod_logistic = function(q){

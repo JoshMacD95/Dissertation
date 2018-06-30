@@ -46,9 +46,13 @@ Euler = function(q0, rho0, m, L, obs.time, grad.U){
   # d - dimensions
   d = length(q0)
   
-  #
-  q.values = matrix(q0, nrow = L + 1, ncol = d)
-  rho.values = matrix(rho0, nrow = L + 1, ncol = d)
+  # Creating Empty Matrix for Values
+  q.values = matrix(0, nrow = L + 1, ncol = d)
+  rho.values = matrix(0, nrow = L + 1, ncol = d)
+  
+  # Intial Values
+  q.values[1,] = q0
+  rho.values[1,] = rho0
   
   for(i in 1:L){
     rho.values[i+1,] = rho.values[i,] - (obs.time/L)*grad.U(q.values[i,])
@@ -76,9 +80,14 @@ Euler.mod = function(q0, rho0, m, L, obs.time, grad.U){
   # d - dimensions
   d = length(q0)
   
-  q.values = matrix(q0, nrow = L + 1, ncol = d)
-  rho.values = matrix(rho0, nrow = L + 1, ncol = d)
-
+  # Creating empty matrix for values
+  q.values = matrix(0, nrow = L + 1, ncol = d)
+  rho.values = matrix(0, nrow = L + 1, ncol = d)
+  
+  # Initial Values
+  q.values[1,] = q0
+  rho.values[1,] = rho0
+  
   for(i in 1:L){
     rho.values[i+1,] = rho.values[i,] - (obs.time/L)*grad.U(q.values[i,])
     q.values[i+1,] = q.values[i,] + (obs.time/L)*rho.values[i+1,]/m
@@ -104,9 +113,14 @@ leapfrog = function(q0, rho0, m, L, obs.time, grad.U){
   # d - dimensional problem
   d = length(q0)
   
-  q.values = matrix(q0, nrow = L + 1, ncol = d)
-  rho.values = matrix(rho0, nrow = L + 1, ncol = d)
-
+  # Creating empty matrix for values
+  q.values = matrix(0, nrow = L + 1, ncol = d)
+  rho.values = matrix(0, nrow = L + 1, ncol = d)
+  
+  # Initial Values
+  q.values[1,] = q0
+  rho.values[1,] = rho0
+  
   for(i in 1:L){
     rho_halfeps = rho.values[i,] - 0.5*(obs.time/L)*grad.U(q.values[i,])
     q.values[i+1,] = q.values[i,] + (obs.time/L)*rho_halfeps/m
