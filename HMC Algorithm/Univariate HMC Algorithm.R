@@ -18,12 +18,12 @@ source('Numerical Methods/Numerical Methods for systems of Diff Eqns.R')
 # K is function of energy dependent on momentum parameters
 # Specific forms of the functions mentioned above should be defined in the 'Functions for HMC.R' file
 
-Univariate.HMC = function(q0, m, L, obs.time, U, grad.U, K, method=leapfrog, no.its, burn.in, output.type = "all"){
+Univariate.HMC = function(x0, m, L, obs.time, target, K, method=leapfrog, no.its, burn.in){
   # Initial Potenial Energy (-log(posterior))
   time.start = Sys.time()
-  U0 = U(q0)
+  U0 = U(x0, target)
   
-  q.curr = q0
+  x.curr = x0
   U.curr = U0
   
   no.accept = 0
@@ -37,19 +37,18 @@ Univariate.HMC = function(q0, m, L, obs.time, U, grad.U, K, method=leapfrog, no.
     K.curr = K(rho.curr, m) # Kinetic Energy
     
     # Hamiltonian Dynamics (Leapfrog)
-    ham.dyn = numerical.method(q.curr, rho.curr, m, L, obs.time, grad.U, method, final = TRUE)
+    ham.dyn = numerical.method(x.curr, rho.curr, m, L, obs.time, target, K, method, final = TRUE)
     
-    q.prop = ham.dyn[,1]
+    x.prop = ham.dyn[,1]
     rho.prop = -ham.dyn[,2]
     
-    U.prop = U(q.prop)
+    U.prop = U(x.prop, target)
     K.prop = K(rho.prop, m)
-    print(U.prop)
-    print(K.prop)
+
     # accept-reject step
     if(runif(1) < exp(- U.prop - K.prop + U.curr + K.curr)){
       # Update position and -log posterior
-      q.curr = q.prop
+      x.curr = x.prop
       U.curr = U.prop
       rho.curr = rho.prop # Not completely neccesarry as new value drawn
     
@@ -57,7 +56,7 @@ Univariate.HMC = function(q0, m, L, obs.time, U, grad.U, K, method=leapfrog, no.
     }
 
     # Store New values
-    draws[i,1] = q.curr
+    draws[i,1] = x.curr
     draws[i,2] = U.curr
   }
   
@@ -66,21 +65,14 @@ Univariate.HMC = function(q0, m, L, obs.time, U, grad.U, K, method=leapfrog, no.
   time.taken = time.finish - time.start
   # Calculating Effective Sample Size
   ESS = effectiveSize(draws[,1])
-  ESS.per.sec = ESS/as.numeric(time.taken)
+  scaled.ESS = ESS/L
   # Calculating Acceptance Rate
   accept.rate = no.accept/no.its
   
   # Important Output
-  output(U, K, ESS, accept.rate, q0 = q0, no.its)
-  if(output.type == "all"){
-    return(list(sample = draws[,1], log.target = -draws[,2], ESS = ESS, ESS.per.sec =ESS.per.sec))
-  }
-  if(output.type == "ESS"){
-    return(ESS)
-  }
-  if(output.type == "ESS/sec"){
-    return(ESS.per.sec)
-  }
+  output(target, K, ESS, accept.rate, x0 = x0, no.its, L, obs.time)
+  
+  return(list(sample = draws[,1], log.target = -draws[,2], accept.rate = accept.rate, ESS = ESS, scaled.ESS = scaled.ESS))
 }
 
 # Simulate Random Normal Data to compare with
