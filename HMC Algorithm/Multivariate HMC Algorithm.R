@@ -8,15 +8,16 @@ library(coda)
 library(mvnfast)
 source('Numerical Methods/Numerical Methods for systems of Diff Eqns.R')
 
+
 # ==== Multivariate Hamiltonian Algorithm ====
 
-Multivariate.HMC = function(q0, m, L, obs.time, 
-                            U, grad.U, K, method = leapfrog, 
-                            no.its, burn.in, output.type = "all"){
+Multivariate.HMC = function(x0, m, L, obs.time, 
+                            target, K, method = leapfrog, 
+                            no.its, burn.in){
   
   time.start = Sys.time()
   
-  d = length(q0)
+  d = length(x0)
   
   if(length(m) == 1){
     m = rep(m, d)
@@ -26,15 +27,15 @@ Multivariate.HMC = function(q0, m, L, obs.time,
   }
   
   # Initial Potential Energy
-  U0 = U(q0)
+  U0 = U(x0, target)
   
-  q.curr = q0
+  x.curr = x0
   U.curr = U0
   
   no.accept = 0
   draws = matrix(data = 0, nrow = no.its + 1, ncol = d + 2)
   
-  draws[1,] = c(q.curr, U.curr, U.curr)
+  draws[1,] = c(x.curr, U.curr, U.curr)
   
   
   for(i in 2:(no.its+1)){
@@ -44,11 +45,11 @@ Multivariate.HMC = function(q0, m, L, obs.time,
     K.curr = K(rho.curr, m)
     H.curr = U.curr + K.curr
     # Hamiltonian Dynamics 
-    ham.dyn = numerical.method(q.curr, rho.curr, m, L, obs.time, grad.U, method, final = TRUE)
-    q.prop = ham.dyn[,1]
+    ham.dyn = numerical.method(x.curr, rho.curr, m, L, obs.time, target, K, method, final = TRUE)
+    x.prop = ham.dyn[,1]
     rho.prop = - ham.dyn[,2]
     
-    U.prop = U(q.prop)
+    U.prop = U(x.prop, target)
     K.prop = K(rho.prop, m)
     H.prop = U.prop + K.prop
     
@@ -56,34 +57,33 @@ Multivariate.HMC = function(q0, m, L, obs.time,
     if(runif(1) < exp(-H.prop + H.curr)){
       
       # Update position and -log(posteriors)
-      q.curr = q.prop
+      x.curr = x.prop
       U.curr = U.prop
       rho.curr = rho.prop
       
       no.accept = no.accept + 1
     }
     
-    draws[i,] = c(q.curr, U.curr, H.curr)
+    draws[i,] = c(x.curr, U.curr, H.curr)
   }
   draws = draws[-(1:burn.in),]
   time.finish = Sys.time()
   time.taken = time.finish - time.start
+  
   # Calculating Effective Sample Size
   ESS = effectiveSize(draws[,1:d])
-  ESS.per.sec = ESS/as.numeric(time.taken)
+  
+  # Calculated Scaled ESS which accounts for computation time
+  # Divide by number of leapfrog steps L instead of time taken so
+  # result is not dependent on computational power.
+  scaled.ESS = ESS/L
+  
   # Calculating Acceptance Rate
   accept.rate = no.accept/no.its
   
   # Important Output
-  output(U, K, ESS, accept.rate, q0, no.its)
-  if(output.type == "all"){
-    return(list(sample = draws[,1:d], log.target = -draws[,d+1], hamiltonian = draws[,d+2],  
-                ESS = ESS, ESS.per.sec = ESS.per.sec))
-  }
-  if(output.type == "ESS"){
-    return(ESS)
-  }
-  if(output.type == "ESS/sec"){
-    return(ESS.per.sec)
-  }
+  output(target, K, ESS, accept.rate, x0, no.its, L, obs.time)
+  
+  return(list(sample = draws[,1:d], log.target = -draws[,d+1], hamiltonian = draws[,d+2],  
+              ESS = min(ESS), scaled.ESS = min(scaled.ESS), accept.rate = accept.rate))
 }

@@ -19,12 +19,12 @@ source('HMC Algorithm/Functions for HMC.R')
 
 
 # Analytical Solutions to Hamiltonian Dynamics if possible.
-q_t = function(q0, m, t){
-  return(q0*cos(t/sqrt(m)))
+x_t = function(x0, m, t){
+  return(x0*cos(t/sqrt(m)))
 }
 
-rho_t = function(q0, m, t){
-  return(-(q0/sqrt(m))*sin(t/sqrt(m)))
+rho_t = function(x0, m, t){
+  return(-(x0/sqrt(m))*sin(t/sqrt(m)))
 }
 
 
@@ -33,7 +33,7 @@ rho_t = function(q0, m, t){
 # ==========
 
 
-Euler = function(q0, rho0, m, L, obs.time, grad.U){
+Euler = function(x0, rho0, m, L, obs.time, target, K){
 
   # Making sure mass is defined in each 'dimension'
   if(length(m) == 1){
@@ -44,30 +44,29 @@ Euler = function(q0, rho0, m, L, obs.time, grad.U){
   }
   
   # d - dimensions
-  d = length(q0)
+  d = length(x0)
   
   # Creating Empty Matrix for Values
-  q.values = matrix(0, nrow = L + 1, ncol = d)
+  x.values = matrix(0, nrow = L + 1, ncol = d)
   rho.values = matrix(0, nrow = L + 1, ncol = d)
-  
+  hamiltonian = c()
   # Intial Values
-  q.values[1,] = q0
+  x.values[1,] = x0
   rho.values[1,] = rho0
-  
+  hamiltonian[1] = U(x0, target) + K(rho0)
   for(i in 1:L){
-    rho.values[i+1,] = rho.values[i,] - (obs.time/L)*grad.U(q.values[i,])
-    q.values[i+1,] = q.values[i,] + (obs.time/L)*rho.values[i,]/m
+    rho.values[i+1,] = rho.values[i,] - (obs.time/L)*grad.U(x = x.values[i,], target = target)
+    x.values[i+1,] = x.values[i,] + (obs.time/L)*rho.values[i,]/m
+    hamiltonian[i+1] = U(x.values[i+1,], target) + K(rho.values[i+1,], m)
   }
-  return(cbind(q.values, rho.values))
+  return(list(x.values = x.values, rho.values = rho.values, hamiltonian = hamiltonian))
 }
-
-Euler(q0 = c(0,0), rho0 = c(1,1), m =1, L = 2, obs.time = 2*pi, grad.U = grad.Gaussian)
 
 # ===================
 # ==== Modified Euler
 # ===================
 
-Euler.mod = function(q0, rho0, m, L, obs.time, grad.U){
+Euler.mod = function(x0, rho0, m, L, obs.time, target, K){
   
   # Making sure mass is defined in each 'dimension'
   if(length(m) == 1){
@@ -78,21 +77,23 @@ Euler.mod = function(q0, rho0, m, L, obs.time, grad.U){
   }
   
   # d - dimensions
-  d = length(q0)
+  d = length(x0)
   
   # Creating empty matrix for values
-  q.values = matrix(0, nrow = L + 1, ncol = d)
+  x.values = matrix(0, nrow = L + 1, ncol = d)
   rho.values = matrix(0, nrow = L + 1, ncol = d)
-  
+  hamiltonian = c()
   # Initial Values
-  q.values[1,] = q0
+  x.values[1,] = x0
   rho.values[1,] = rho0
+  hamiltonian[1] = U(x0, target) + K(rho0, m)
   
   for(i in 1:L){
-    rho.values[i+1,] = rho.values[i,] - (obs.time/L)*grad.U(q.values[i,])
-    q.values[i+1,] = q.values[i,] + (obs.time/L)*rho.values[i+1,]/m
+    rho.values[i+1,] = rho.values[i,] - (obs.time/L)*grad.U(x.values[i,], target)
+    x.values[i+1,] = x.values[i,] + (obs.time/L)*rho.values[i+1,]/m
+    hamiltonian[i+1] = U(x.values[i+1,], target) + K(rho.values[i+1,], m)
   }
-  return(cbind(q.values, rho.values))
+  return(list(x.values = x.values, rho.values = rho.values, hamiltonian = hamiltonian))
 }
 
 #=====================
@@ -100,7 +101,7 @@ Euler.mod = function(q0, rho0, m, L, obs.time, grad.U){
 #=====================
 
 # Give number os steps instead o epsilon
-leapfrog = function(q0, rho0, m, L, obs.time, grad.U){
+leapfrog = function(x0, rho0, m, L, obs.time, target, K){
   
   # Making sure mass is defined in each 'dimension'
   if(length(m) == 1){
@@ -111,22 +112,23 @@ leapfrog = function(q0, rho0, m, L, obs.time, grad.U){
   }
   
   # d - dimensional problem
-  d = length(q0)
+  d = length(x0)
   
   # Creating empty matrix for values
-  q.values = matrix(0, nrow = L + 1, ncol = d)
+  x.values = matrix(0, nrow = L + 1, ncol = d)
   rho.values = matrix(0, nrow = L + 1, ncol = d)
-  
+  hamiltonian = c()
   # Initial Values
-  q.values[1,] = q0
+  x.values[1,] = x0
   rho.values[1,] = rho0
-  
+  hamiltonian[1] = U(x0, target) + K(rho0, m)
   for(i in 1:L){
-    rho_halfeps = rho.values[i,] - 0.5*(obs.time/L)*grad.U(q.values[i,])
-    q.values[i+1,] = q.values[i,] + (obs.time/L)*rho_halfeps/m
-    rho.values[i+1,] = rho_halfeps - 0.5*(obs.time/L)*grad.U(q.values[i+1,])
+    rho_halfeps = rho.values[i,] - 0.5*(obs.time/L)*grad.U(x.values[i,], target)
+    x.values[i+1,] = x.values[i,] + (obs.time/L)*rho_halfeps/m
+    rho.values[i+1,] = rho_halfeps - 0.5*(obs.time/L)*grad.U(x.values[i+1,], target)
+    hamiltonian[i+1] = U(x.values[i+1,], target) + K(rho.values[i+1,], m)
   }
-  return(cbind(q.values, rho.values))
+  return(list(x.values = x.values, rho.values = rho.values, hamiltonian = hamiltonian))
 }
 
 
@@ -138,14 +140,15 @@ leapfrog = function(q0, rho0, m, L, obs.time, grad.U){
 # ==== General Function
 # =====================
 
-numerical.method = function(q0, rho0, m, L, obs.time, grad.U, method, print = FALSE, final = TRUE){
-  d = length(q0)
+numerical.method = function(x0, rho0, m, L, obs.time, target, K, method, print = FALSE, final = TRUE){
+  d = length(x0)
   # Run the choice of numerical method
-  result = method(q0, rho0, m, L, obs.time, grad.U)
+  result = method(x0, rho0, m, L, obs.time, target, K)
+                 
   
   # Store the final position and momentum values
-  q.star = result[L+1,1:d]
-  rho.star = result[L+1,(d+1):(2*d)]
+  x.star = result$x.values[L+1,]
+  rho.star = result$rho.values[L+1,]
   
   
   # Following code prints the information about the results, if
@@ -154,28 +157,15 @@ numerical.method = function(q0, rho0, m, L, obs.time, grad.U, method, print = FA
   if(print == TRUE){
     
     # Feed the final values back into the chosen method, with momentum being reversed.
-    reverse = tail(method(q0 = q.star, rho0 = -rho.star, m, L, obs.time, grad.U), n = 1)
-    
-    #if(method == Euler){
-    #  method.name = 'Euler'
-    #}
-    #if(method == Euler.mod){
-    #  method.name = 'Modified Euler'
-    #}
-    #if(method == leapfrog){
-    #  method.name = 'Leapfrog'
-    #}
-    #else{
-    #  method.name = 'Not recognised'
-    #}
+    reverse = tail(method(x0 = x.star, rho0 = -rho.star, m, L, obs.time, grad.U), n = 1)
     
     #print(paste(c("Method:", method.name)), sep = "", collapse = "")
-    print(paste(c("Starting Point:", q0, rho0)), sep = "", collapse = "")
-    print(paste(c("Result:", q.star, rho.star)), sep = "", collapse = "")
+    print(paste(c("Starting Point:", x0, rho0)), sep = "", collapse = "")
+    print(paste(c("Result:", x.star, rho.star)), sep = "", collapse = "")
     print(paste(c("Reverse:", reverse[,1:d], reverse[, (1+d):(2*d)])), sep = "", collapse = "")
   }
   if(final == TRUE){
-    output = cbind(q.star, rho.star) 
+    output = cbind(x.star, rho.star) 
   }
   else{
     output = result
