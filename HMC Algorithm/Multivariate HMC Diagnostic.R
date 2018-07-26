@@ -5,7 +5,7 @@
 
 # ==== Preamble ====
 
-source("HMC Algorithm/Multivariate HMC Algorithm.R")
+  source("HMC Algorithm/Multivariate HMC Algorithm.R")
 
 # See Radford Neal pd 135 onwards
 
@@ -14,19 +14,18 @@ source("HMC Algorithm/Multivariate HMC Algorithm.R")
 # For Multidimensional problems stability of stepsize will be determined by th
 # width of the ditribution in the most constrained direction
 # For 1-dimension normal (orthogonal), stepsize < 2*sigma is stable
-x0 = rep(0,100)
-d = length(x0)
-m = 1
+d = 4
+x0 = c(100, -100, 100, -100)
 rho0 = rmvn(1, mu = rep(0,d), sigma = diag(m,d))
-L = 100
+L = 1000
 stepsize = 0.01
-target = "Std.Gaussian"
+target = "Prod.Logistic"
 K = squared.kinetic
 no.its = 10000
 burn.in = 1000
 
 
-stepsize.seq = c(0.01, 0.1)
+stepsize.seq = c
 h = matrix(0, nrow = length(stepsize.seq), ncol = L + 1)
 for(i in 1:length(stepsize.seq)){
   h[i,] = leapfrog(x0, rho0, m, L, obs.time = L*stepsize.seq[i], target, K)$hamiltonian
@@ -43,7 +42,7 @@ for(i in 1:length(stepsize.seq)){
 
 
 # ==== Premliminary Running ====
-x0 = rep(0, 100)
+x0 = rep(0, 2)
 m = 1
 L = 20
 #stepsize = 0.155
@@ -56,7 +55,7 @@ d = length(x0)
 Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 1.55, 
                              target, K, method = leapfrog,
                              no.its, burn.in)
-
+View(Test.MHMC$sample)
 par(mfrow = c(1,2))
 
 for(i in 1:d){
@@ -66,35 +65,73 @@ for(i in 1:d){
   acf(Test.MHMC$sample[,i], main ='')
 }
 
-# ==== Effective Sample Size Vs. No. leapsteps (varying stepsize) ==== 
+# ==== Effective Sample Size Vs. Observation Time (varying No. Steps) ==== 
 
-d = 4
+d = 10
 x0 = rep(0, d)
 m = 1
-L.list = 1:10
-stepsize.list = seq(from = 0.01, to = 1.99, length = 10)
+L.list = seq(2, 10, length = 5)
+obs.time.list = seq(from = 0.01, to = pi, length = 10)
 target = 'Std.Gaussian'
 K = squared.kinetic
 method = leapfrog
 no.its = 10000
 burn.in = 1000
 
-scaled.ESS = matrix(NA, nrow = length(L.list), ncol = length(stepsize.list))
+scaled.ESS = matrix(NA, nrow = length(obs.time.list), ncol = length(L.list))
 
-for(i in 1:length(L.list)){
-  for(j in 1:length(stepsize.list)){
-    scaled.ESS[i,j] = Multivariate.HMC(x0, m, L = L.list[j], obs.time = stepsize.list[j]*L.list[i],
-                                     target, K, method, no.its, burn.in)$ESS
+for(i in 1:length(obs.time.list)){
+  for(j in 1:length(L.list)){
+    scaled.ESS[i,j] = Multivariate.HMC(x0, m, L = L.list[j], obs.time = obs.time.list[i],
+                                target, K, method, no.its, burn.in)$scaled.ESS
   }
 }
 
 
 
-plot(L.list, scaled.ESS[,1], col = 1,
-     xlab = 'L', ylab = 'ESS')
-for(i in 2:length(stepsize.list)){
-  plot(L.list, scaled.ESS[,i], col = i+1, type = 'l')
+plot(obs.time.list, scaled.ESS[,1], col = 1,
+     xlab = 'T', ylab = 'ESS/L', ylim = c(min(scaled.ESS), 10000), xlim = c(0,pi), type  = 'l')
+for(i in 2:length(L.list)){
+  points(obs.time.list, scaled.ESS[,i], col = i+1, type = 'l')
 }
+
+legend("topleft", legend = c("2", "4", "6", "8", "10"), title = "Leapfrog Steps",
+       col = 1:5, lty = 1)
+
+# ==== Effective Sample Size Vs. Leapfrog Steps (varying Stepsize) ==== 
+
+d = 2
+x0 = rep(0, d)
+m = 1
+L.list = 1:10
+stepsize.list = seq(from = 0.01, to = 0.15, length = 5)
+target = 'Prod.Logistic'
+K = squared.kinetic
+method = leapfrog
+no.its = 10000
+burn.in = 1000
+
+ESS = matrix(NA, nrow = length(L.list), ncol = length(stepsize.list ))
+
+for(i in 1:length(L.list)){
+  for(j in 1:length(stepsize.list)){
+    ESS[i,j] = Multivariate.HMC(x0, m, L = L.list[i], obs.time = stepsize.list[j]*L.list[i],
+                                       target, K, method, no.its, burn.in)$ESS
+  }
+}
+
+
+
+plot(L.list, ESS[,1], col = 1,
+     xlab = 'L', ylab = 'ESS', type = 'l',
+     ylim = c(min(ESS), 10000), xlim = c(1,10))
+for(i in 2:length(stepsize.list)){
+  points(L.list, ESS[,i], col = i+1, type = 'l')
+}
+
+legend("topleft", 
+       legend = c(as.character(stepsize.list[1]), as.character(stepsize.list[2]), as.character(stepsize.list[3]), as.character(stepsize.list[4]), as.character(stepsize.list[5])),
+       title = "Stepsize", col = 1:5, lty = 1)
 
 # ==== Finding optimal acceptance rate ====
 
@@ -146,6 +183,40 @@ for(i in 2:length(stepsize.list)){
   points(acceptance.rates[,i], scaled.ESS[,i], col = i+1)
 }
 
+# == Squared Error of Monte Carlo Estimates for varying stepsize ==
+d = 10
+x0 = rep(0,d)
+m = 1
+stepsize.list = seq(from = 0.1, to = 2, length = 10)
+L.list = 10
+target = 'Std.Gaussian'
+K = squared.kinetic
+method = leapfrog
+no.its = 10000
+burn.in = 1000
+
+SE = matrix(nrow = length(stepsize.seq), ncol = 120)
+
+accept.matrix = c(nrow = length(stepsize.seq), ncol = 120)
+for(j in 1:120){
+  for(i in 1:length(stepsize.list)){
+    HMC = Multivariate.HMC(x0, m, L.list, obs.time = L.list*stepsize.list[i], target, K, method = leapfrog, no.its, burn.in)
+    SE[i] = ((1/length(HMC$sample[,1]))*sum(HMC$sample[,1]) - 0)^2
+    accept.matrix[i] = HMC$accept.rate
+  }
+}
+
+
+
+par(mfrow = c(1,1))
+plot(accept.matrix, SE, ylab = 'SE', xlab = 'Acceptance Rate', col = 'red',
+     xlim = c(0, 1))
+
+for(i in 2:length(stepsize.list)){
+  points(accept.matrix[i,], SE[i,], col = i+1)
+}
+
+min(SE)
 
 # ==== Increasing Dimension ====
 

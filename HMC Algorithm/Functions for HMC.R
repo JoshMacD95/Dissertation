@@ -13,11 +13,11 @@ U = function(x, target){
     return(-dnorm(x, mean = 0, sd = 1, log = TRUE))
   }
   if(target == "Std.Gaussian"){
-    return(-dmvn(x, mu = rep(0, length(x)), sigma = diag(rep(c(1,10), length(x)/2)), 
+    return(-dmvn(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), 
                  log = TRUE))
   }
   else if(target == "Logistic"){
-    return(sum(-log(exp(x)/(1+exp(x))^2)))
+    return(-log(exp(x)/(1+exp(x))^2))
   }
   else if(target == "Prod.Logistic"){
     return(sum(-log(exp(x)/(1+exp(x))^2)))
@@ -32,6 +32,7 @@ U = function(x, target){
   }
 }
 
+#rep(c(1,10), length(x)/2)
 
 grad.U = function(x, target){
   if(target == "1D.Gaussian"){

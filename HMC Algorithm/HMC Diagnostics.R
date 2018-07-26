@@ -21,7 +21,7 @@ m = 1
 rho0 = rnorm(1, mean  = 0, sd = sqrt(m))
 L = 100
 stepsize = 0.01
-target = '1D.Gaussian'
+target = 'Logistic'
 K = squared.kinetic
 method = leapfrog
 no.its = 10000
@@ -42,6 +42,12 @@ plot(x = seq(1, length(h[1,])), y = rep(h[1,1], length(h[1,])),
 for(i in 1:length(stepsize.seq)){
   lines(h[i,], type='l', col = i)
 }
+x = seq(-100, 100, length = 1000)
+
+plot(x, grad.U(x, "Logistic"), type = 'l')
+
+lines(x, grad.U(x, "1D.Gaussian"), type = 'l', col = 'blue')
+
 
 # ==== Preliminary Runs ====
 
@@ -49,9 +55,9 @@ for(i in 1:length(stepsize.seq)){
 #       by varying the number of steps
 x0 = 0
 m = 1
-L = 10
-stepsize = 1.55
-target = '1D.Gaussian'
+L = 300
+stepsize = 0.01
+target = 'Logistic'
 K = squared.kinetic
 method = leapfrog
 no.its = 10000
