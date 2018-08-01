@@ -3,18 +3,32 @@
 #' Functions for Univariate HMC
 #'
 
+#'
+#' This file is to be used to store any functions/distributions
+#' to be used in Hamiltonian Monte Carlo Algoritms/Numerical Methods.
+#'
+#' 
+#'
+#'
 # ==== Preamble ====
 library(mvnfast)
 
 # ==== Potential Energy Function ==== 
 
+# NOTE: If a distribution is edited in the U (potential) function
+#       please change the corresponding distribution in the grad.U 
+#       (Grad Potential) to line up 
 U = function(x, target){
   if(target == "1D.Gaussian"){
     return(-dnorm(x, mean = 0, sd = 1, log = TRUE))
   }
   if(target == "Std.Gaussian"){
-    return(-dmvn(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), 
-                 log = TRUE))
+    return(-dmvn(x, mu = rep(0, length(x)), sigma = diag(0.25^2, length(x)), log = TRUE))
+  }
+  else if(target == "General.Gaussian"){
+    # Covariance Matrix
+    V = diag(1, length(x))
+    return(dmvn(x, mu = rep(0, length(x)), sigma = V))
   }
   else if(target == "Logistic"){
     return(-log(exp(x)/(1+exp(x))^2))
@@ -22,12 +36,17 @@ U = function(x, target){
   else if(target == "Prod.Logistic"){
     return(sum(-log(exp(x)/(1+exp(x))^2)))
   }
+  else if(target == "Increasing.Scale.Gauss"){
+    return(-dmvn(x, mu = rep(0, length(x)), sigma = diag(seq(from = 0.1, to = length(x)*0.1, length = length(x))), log = TRUE))
+  }
   else{
     stop("Please give a valid target:
          '1D.Gaussian'
          'Std.Gaussian'
+         'General.Gaussian'
          'Logistic'
          'Prod.Logisitic'
+         'Increasing.Scale.Gauss'
          ")
   }
 }
@@ -38,8 +57,12 @@ grad.U = function(x, target){
   if(target == "1D.Gaussian"){
     return(x)
   }
-  if(target == "Std.Gaussian"){
-    return(x%*%solve(diag(1,length(x))))
+  else if(target == "Std.Gaussian"){
+    return(x/(0.25)^2)
+  }
+  else if(target == "General.Gaussian"){
+    V = diag(1, length(x))
+    return(x%*%solve(V))
   }
   else if(target == "Logistic"){
     return(-1 + 2*exp(x)/(1+exp(x)))
@@ -47,15 +70,21 @@ grad.U = function(x, target){
   else if(target == "Prod.Logistic"){
     return(sum(-1 + 2*exp(x)/(1+exp(x))))
   } 
+  else if(target == "Increasing.Scale.Gauss"){
+    return(x%*%solve(diag(seq(from = 0.1, to = length(x)*0.1, length = length(x)))))
+  }
   else{
     stop("Please give a valid target:
-         '1D.Gaussain'
+         '1D.Gaussian'
          'Std.Gaussian'
+         'General.Gaussian'
          'Logistic'
-         'Prod.Logistic'
+         'Prod.Logisitic'
+         'Increasing.Scale.Gauss'
          ")
   }
 }
+
 
 # ==== Kinetic Energy Function ====
 # Acts as a proposal in HMC

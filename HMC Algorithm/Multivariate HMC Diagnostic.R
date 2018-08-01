@@ -15,17 +15,18 @@
 # width of the ditribution in the most constrained direction
 # For 1-dimension normal (orthogonal), stepsize < 2*sigma is stable
 d = 4
-x0 = c(100, -100, 100, -100)
+x0 = rnorm(d, 0, 1)
+m =1
 rho0 = rmvn(1, mu = rep(0,d), sigma = diag(m,d))
 L = 1000
 stepsize = 0.01
-target = "Prod.Logistic"
+target = "Std.Gaussian"
 K = squared.kinetic
 no.its = 10000
 burn.in = 1000
 
 
-stepsize.seq = c
+stepsize.seq = c(0.01, 0.1, 1, 1.5, 1.9)
 h = matrix(0, nrow = length(stepsize.seq), ncol = L + 1)
 for(i in 1:length(stepsize.seq)){
   h[i,] = leapfrog(x0, rho0, m, L, obs.time = L*stepsize.seq[i], target, K)$hamiltonian
@@ -42,21 +43,22 @@ for(i in 1:length(stepsize.seq)){
 
 
 # ==== Premliminary Running ====
-x0 = rep(0, 2)
+
+d = 4
+x0 = rnorm(d, 0, 1)
 m = 1
-L = 20
+L = 10
 #stepsize = 0.155
 target = "Std.Gaussian"
 K = squared.kinetic
 no.its = 10000
 burn.in = 1000
-d = length(x0)
 
-Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 1.55, 
+Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 1.4, 
                              target, K, method = leapfrog,
                              no.its, burn.in)
 View(Test.MHMC$sample)
-par(mfrow = c(1,2))
+par(mfrow = c(1,d))
 
 for(i in 1:d){
   plot(Test.MHMC$sample[,i])
@@ -132,6 +134,54 @@ for(i in 2:length(stepsize.list)){
 legend("topleft", 
        legend = c(as.character(stepsize.list[1]), as.character(stepsize.list[2]), as.character(stepsize.list[3]), as.character(stepsize.list[4]), as.character(stepsize.list[5])),
        title = "Stepsize", col = 1:5, lty = 1)
+
+
+# ==== ESS/sec or ESS/L vs. Acceptance rate (Varying Stepsize, Calculating No. leapfrog steps) ====
+
+d = 20
+m = 1
+k = 0:5
+no.runs = length(k)
+stepsize.list = 2^(-k)
+L.list = 2^k
+stepsize.list = seq(from = 0.03125, to = 2, length = 6)
+L.list = ceiling(obs.time/stepsize.list)
+target = 'Std.Gaussian'
+K = squared.kinetic
+method = leapfrog
+no.its = 10000
+burn.in = 1000
+
+reps = 10
+
+all.ESS = rep(0,reps*no.runs)
+all.ESS.L = rep(0,reps*no.runs)
+all.Acceptance.rates = rep(0,reps*no.runs)
+
+for(j in 1:reps){
+
+  for(i in 1:no.runs){
+    ESS = c()
+    ESS.L = c()
+    Acceptance.rates = c()
+    x0 = rnorm(d, 0, 1) # Only sample x0 from dist.n if target is trivial gaurantees starting in stationarity
+    HMC =  Multivariate.HMC(x0, m, L = L.list[i], obs.time = stepsize.list[i]*L.list[i],
+                            target, K, method, no.its, burn.in)
+    ESS[i] = HMC$ESS
+    ESS.L[i] = HMC$scaled.ESS
+    Acceptance.rates[i] = HMC$accept.rate
+  }
+  all.ESS[(j-1)*no.runs + (1:no.runs)] = ESS
+  all.ESS.L[(j-1)*no.runs + (1:no.runs)] = ESS.L
+  all.Acceptance.rates[(j-1)*no.runs + (1:no.runs)] = Acceptance.rates
+}
+
+
+par(mfrow=c(1,1))
+plot(all.Acceptance.rates, all.ESS.L)
+plot(all.Acceptance.rates, all.ESS)
+
+onehundred.dimensions = data.frame(all.ESS, all.ESS.L, all.Acceptance.rates)
 
 # ==== Finding optimal acceptance rate ====
 
