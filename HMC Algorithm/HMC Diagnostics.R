@@ -237,10 +237,3 @@ image(ESS.matrix)
 # Increasing variance of chain
 
 # Problem is Variance parameter, m = 0.5 seems like a good choice. Why?
-
-a = matrix(NA, nrow = 50, ncol = 5)
-
-
-b = matrix(0 , nrow = 4, ncol = 5)
-
-a[1:4, ] = b

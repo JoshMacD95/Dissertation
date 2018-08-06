@@ -75,6 +75,10 @@ Univariate.HMC = function(x0, m, L, obs.time, target, K, method=leapfrog, no.its
   return(list(sample = draws[,1], log.target = -draws[,2], accept.rate = accept.rate, ESS = ESS, scaled.ESS = scaled.ESS))
 }
 
+HMC = Univariate.HMC(x0 = rlogis(1, location = 0,scale = theta), m = , L = 10, obs.time = 3, target = "Logistic", K = squared.kinetic,
+               no.its = 10000, burn.in = 1000)
+
+
 # Simulate Random Normal Data to compare with
 #x = rnorm(100000, 0, 1)
 #x = sort(x)

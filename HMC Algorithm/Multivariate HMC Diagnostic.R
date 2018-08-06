@@ -14,23 +14,23 @@
 # For Multidimensional problems stability of stepsize will be determined by th
 # width of the ditribution in the most constrained direction
 # For 1-dimension normal (orthogonal), stepsize < 2*sigma is stable
-d = 4
-x0 = rnorm(d, 0, 1)
-m =1
-rho0 = rmvn(1, mu = rep(0,d), sigma = diag(m,d))
-L = 1000
-stepsize = 0.01
-target = "Std.Gaussian"
+d = 2
+# iid Logistic
+theta = 1*((1:d)%%2 != 0) + 10*((1:d)%%2 == 0) 
+x0 = rlogis(d, location = 0, scale = 1/theta)
+m = c(1,11)
+rho0 = rnorm(d, mean = 0, sd = sqrt(m))
+L = 100
+target = "Prod.Logistic"
 K = squared.kinetic
-no.its = 10000
-burn.in = 1000
 
-
-stepsize.seq = c(0.01, 0.1, 1, 1.5, 1.9)
+stepsize.seq = c(0.1)
 h = matrix(0, nrow = length(stepsize.seq), ncol = L + 1)
 for(i in 1:length(stepsize.seq)){
   h[i,] = leapfrog(x0, rho0, m, L, obs.time = L*stepsize.seq[i], target, K)$hamiltonian
 }
+
+
 par(mfrow =c(1,1))
 plot(x = seq(1, length(h[1,])), y = rep(h[1,1], length(h[1,])), 
      type = 'l', col = 'green', lty = 2, 
@@ -41,20 +41,25 @@ for(i in 1:length(stepsize.seq)){
   lines(h[i,], type='l', col = i)
 }
 
-
 # ==== Premliminary Running ====
 
-d = 4
-x0 = rnorm(d, 0, 1)
-m = 1
+d = 2
+# iid N(0,1)
+# x0 = rnorm(d)
+
+# iid Logistic
+theta = 10*((1:d)%%2 == 0) + 1*((1:d)%%2 != 0) 
+x0 = rlogis(d, location = 0, scale = 1/theta)
+
+m = theta
 L = 10
-#stepsize = 0.155
-target = "Std.Gaussian"
+#stepsize = 0.001
+target = "Prod.Logistic"
 K = squared.kinetic
 no.its = 10000
 burn.in = 1000
 
-Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 1.4, 
+Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 3, 
                              target, K, method = leapfrog,
                              no.its, burn.in)
 View(Test.MHMC$sample)
