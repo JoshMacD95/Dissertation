@@ -75,6 +75,7 @@ U = function(x, target){
   else if(target == "Prod.Logistic"){
     i = seq(1, length(x))
     theta = 10*(i%%2 == 0) + 1*(i%%2 != 0)
+    #theta = rep(1, length(x))
     return(sum(-log(theta) - theta*x + 2*log(1 + exp(theta*x))))
   }
   else if(target == "Increasing.Scale.Gauss"){
@@ -113,6 +114,7 @@ grad.U = function(x, target){
   else if(target == "Prod.Logistic"){
     i = seq(1, length(x))
     theta = 10*(i%%2 == 0) + 1*(i%%2 != 0)
+    #theta = rep(1, length(x))
     return(-theta + 2*theta*exp(theta*x)/(1+exp(theta*x)))
   }
   else if(target == "Increasing.Scale.Gauss"){

@@ -18,7 +18,7 @@ d = 2
 # iid Logistic
 theta = 1*((1:d)%%2 != 0) + 10*((1:d)%%2 == 0) 
 x0 = rlogis(d, location = 0, scale = 1/theta)
-m = c(1,11)
+m = c(1,1)
 rho0 = rnorm(d, mean = 0, sd = sqrt(m))
 L = 100
 target = "Prod.Logistic"
@@ -49,8 +49,8 @@ d = 2
 
 # iid Logistic
 theta = 10*((1:d)%%2 == 0) + 1*((1:d)%%2 != 0) 
-x0 = rlogis(d, location = 0, scale = 1/theta)
-
+#x0 = rlogis(d, location = 0, scale = 1/theta)
+x0 = c(0,0)
 m = theta
 L = 10
 #stepsize = 0.001
@@ -59,7 +59,7 @@ K = squared.kinetic
 no.its = 10000
 burn.in = 1000
 
-Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 3, 
+Test.MHMC = Multivariate.HMC(x0, m, L, obs.time = 2.5, 
                              target, K, method = leapfrog,
                              no.its, burn.in)
 View(Test.MHMC$sample)
