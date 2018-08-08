@@ -22,43 +22,35 @@ source("HMC Algorithm/Multivariate HMC Algorithm.R")
 # ==== Test ====
 
 
-#target = "Increasing.Scale.Gauss"
 
-m = 1
+
+#target = "Increasing.Scale.Gauss"
 target = "Prod.Logistic"
 method = leapfrog
-no.its = 1000
-burn.in = 10
-min.sigma = 1
-
-# How many different combinations per dimension?
-d = 2
-m = 1
-theta = 0.01*((1:d)%%2 != 0) + 0.01*((1:d)%%2 == 0) 
-x0 = c(0,0)
-HMC = Multivariate.HMC(x0, m, L = 100, obs.time = 100*0.1, target, K = squared.kinetic, method, no.its, burn.in)
-
-plot(HMC$sample[,2])
-x0 = rlogis(d, location = 0, scale = 1/theta)
+no.its = 10000
+burn.in = 1000
 
 # Integration time, chosen to be adequate but not optimal
-obs.time = 1
+obs.time = 2.5
 
 # No. Leapfrog steps to iterate over
-L.list = c(6, 7, 8, 9, 10, 13, 27)
-#L.list = ceiling(obs.time/stepsize.list)
-#stepsize.list = seq(2*min.sigma/k, 2*min.sigma, length.out = k)
+L.list = seq(1:20)
 
-d.list = c(2, 5, 10, 50, 100)
 
+# Stepsizes to iterate over
 # Stepsize calculated based on Integration time and No. Leapfrog steps
-stepsize.mat = matrix(0, nrow = length(L.list), ncol = length(d.list))
+stepsize.list = obs.time/L.list
 
-for(i in 1:length(L.list)){
-  for(j in 1:length(d.list)){
-    stepsize.mat[i,j] = obs.time/(L.list[i]*d.list[j]^(1/4))
-  }
-}
+# Dimensions to iterate over
+#d.list = c(2, 5, 10, 50, 100)
+d.list = rep(100, 3)
+#stepsize.mat = matrix(0, nrow = length(L.list), ncol = length(d.list))
+
+#for(i in 1:length(L.list)){
+#  for(j in 1:length(d.list)){
+#    stepsize.mat[i,j] = obs.time/(L.list[i]*d.list[j]^(1/4))
+#  }
+#}
 
 # Storage
 ESS = rep(NA, length(L.list)*length(d.list))
@@ -68,7 +60,6 @@ L = rep(NA, length(L.list)*length(d.list))
 Stepsize = rep(NA, length(L.list)*length(d.list))
 Dimension = rep(NA, length(L.list)*length(d.list))
 
-
 # Algorithm
 for(j in 1:length(d.list)){
   # Offset parameter so values are stored correctly
@@ -76,31 +67,36 @@ for(j in 1:length(d.list)){
   
   for(i in 1:length(L.list)){
     # Start in Stationary Distribution
-    x0 = rmvn(1, mu = rep(0, d.list[j]), sigma = diag(min.sigma^2, d.list[j]))
+    #x0 = rmvn(1, mu = rep(0, d.list[j]), sigma = diag(min.sigma^2, d.list[j]))
     #x0 = rmvn(1, mu = rep(0, d), sigma = diag(seq(min.sigma, min.sigma*d, length = d)))
-    
+    theta = 1*((1:d.list[j])%%2 != 0) + 10*((1:d.list[j])%%2 == 0)
+    x0 = rlogis(d.list[j], location = 0, scale = 1/theta)
+    m = theta
     # Run HMC Algorithm
-    HMC = Multivariate.HMC(x0, m, L.list[i], obs.time = L.list[i]*stepsize.mat[i,j], target, K = squared.kinetic, method, no.its, burn.in)
+    HMC = Multivariate.HMC(x0, m, L.list[i], obs.time = obs.time, target, K = squared.kinetic, method, no.its, burn.in)
     
     # Store Values
     ESS[k + i] = HMC$ESS
     ESS.L[k + i] = HMC$scaled.ESS
     AR[k + i] = HMC$accept.rate
     L[k + i] = L.list[i]
-    Stepsize[k + i] = stepsize.mat[i,j]
+    Stepsize[k + i] = stepsize.list[i]
     Dimension[k + i] = d.list[j]
   }
 }
 
 output.data = data.frame(Dimension, L, Stepsize, ESS, ESS.L, AR)
 
-plot(output.data$AR, output.data$ESS.L, col = 1, ylim = c(0, 7000), xlim = c(0,1))
-for(i in 2:length(Dimension)){
-  points(output.data$AR[output.data$Dimension == Dimension[i]], output.data$ESS.L[output.data$Dimension == Dimension[i]], col = i, type = 'l')
-}
+plot(output.data$AR, output.data$ESS.L, xlab = "Acceptance Rate", ylab = "ESS/L", col = 1, ylim = c(0, 1000), xlim = c(0,1))
+
+plot(HMC$sample[,4])
+
+#for(i in 2:length(Dimension)){
+#  points(output.data$AR[output.data$Dimension == Dimension[i]], output.data$ESS.L[output.data$Dimension == Dimension[i]], col = i, pch = i)
+#}
 
 # == Save Output ==
-write.csv(output.data, file = "Dimensionality of HMC")
+write.csv(output.data, file = "Logistic Sampling Dimension 100")
 
 # == Load Data ==
 output = read.csv("Dimensionality of HMC")[,-1]
