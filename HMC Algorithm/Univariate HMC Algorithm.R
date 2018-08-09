@@ -28,7 +28,7 @@ Univariate.HMC = function(x0, m, L, obs.time, target, K, method=leapfrog, no.its
   
   no.accept = 0
   draws = matrix(nrow = no.its, ncol = 2, byrow = FALSE, data = 0)
-  
+  ham.errors = rep(0, no.its)
 
   for(i in 1:no.its){
     # Momentum Step
@@ -44,7 +44,8 @@ Univariate.HMC = function(x0, m, L, obs.time, target, K, method=leapfrog, no.its
     
     U.prop = U(x.prop, target)
     K.prop = K(rho.prop, m)
-
+    
+    ham.errors[i] = -(- U.prop - K.prop + U.curr + K.curr)
     # accept-reject step
     if(runif(1) < exp(- U.prop - K.prop + U.curr + K.curr)){
       # Update position and -log posterior
@@ -72,7 +73,7 @@ Univariate.HMC = function(x0, m, L, obs.time, target, K, method=leapfrog, no.its
   # Important Output
   output(target, K, ESS, accept.rate, x0 = x0, no.its, L, obs.time)
   
-  return(list(sample = draws[,1], log.target = -draws[,2], accept.rate = accept.rate, ESS = ESS, scaled.ESS = scaled.ESS))
+  return(list(sample = draws[,1], log.target = -draws[,2], delta.H = ham.errors, accept.rate = accept.rate, ESS = ESS, scaled.ESS = scaled.ESS))
 }
 
 theta = 10

@@ -25,25 +25,28 @@ source("HMC Algorithm/Multivariate HMC Algorithm.R")
 
 
 #target = "Increasing.Scale.Gauss"
-target = "Prod.Logistic"
+#target = "Prod.Logistic"
+target = "Std.Gaussian"
 method = leapfrog
 no.its = 10000
 burn.in = 1000
 
 # Integration time, chosen to be adequate but not optimal
-obs.time = 2.5
+obs.time = 1.4
 
 # No. Leapfrog steps to iterate over
-L.list = seq(1:20)
+#L.list = c(6, 7, 8, 9, 10, 13, 27)
+L.list = rep(1, 20)
 
+stepsize.list = seq(0.01, 2, length = 20)
 
 # Stepsizes to iterate over
 # Stepsize calculated based on Integration time and No. Leapfrog steps
-stepsize.list = obs.time/L.list
+#stepsize.list = obs.time/L.list
 
 # Dimensions to iterate over
 #d.list = c(2, 5, 10, 50, 100)
-d.list = rep(100, 3)
+d.list = rep(50, 1)
 #stepsize.mat = matrix(0, nrow = length(L.list), ncol = length(d.list))
 
 #for(i in 1:length(L.list)){
@@ -67,13 +70,13 @@ for(j in 1:length(d.list)){
   
   for(i in 1:length(L.list)){
     # Start in Stationary Distribution
-    #x0 = rmvn(1, mu = rep(0, d.list[j]), sigma = diag(min.sigma^2, d.list[j]))
+    x0 = rmvn(1, mu = rep(0, d.list[j]), sigma = diag(1^2, d.list[j]))
     #x0 = rmvn(1, mu = rep(0, d), sigma = diag(seq(min.sigma, min.sigma*d, length = d)))
-    theta = 1*((1:d.list[j])%%2 != 0) + 10*((1:d.list[j])%%2 == 0)
-    x0 = rlogis(d.list[j], location = 0, scale = 1/theta)
-    m = theta
+    #theta = 1*((1:d.list[j])%%2 != 0) + 10*((1:d.list[j])%%2 == 0)
+    #x0 = rlogis(d.list[j], location = 0, scale = 1/theta)
+    m = 1
     # Run HMC Algorithm
-    HMC = Multivariate.HMC(x0, m, L.list[i], obs.time = obs.time, target, K = squared.kinetic, method, no.its, burn.in)
+    HMC = Multivariate.HMC(x0, m, L.list[i], obs.time = L.list[i]*stepsize.list[i], target, K = squared.kinetic, method, no.its, burn.in)
     
     # Store Values
     ESS[k + i] = HMC$ESS

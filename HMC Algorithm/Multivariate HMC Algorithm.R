@@ -33,8 +33,11 @@ Multivariate.HMC = function(x0, m, L, obs.time,
   U.curr = U0
   
   no.accept = 0
-  draws = matrix(data = 0, nrow = no.its + 1, ncol = d + 2)
   
+  # ncols = d + 2 for d dimensions of sample then current value of potential and Hamiltonian 
+  # and error in Hamiltonian in that iteration
+  draws = matrix(data = 0, nrow = no.its + 1, ncol = d + 2)
+  ham.errors = rep(NA, no.its)
   draws[1,] = c(x.curr, U.curr, U.curr)
   
   
@@ -52,7 +55,7 @@ Multivariate.HMC = function(x0, m, L, obs.time,
     U.prop = U(x.prop, target)
     K.prop = K(rho.prop, m)
     H.prop = U.prop + K.prop
-    
+    ham.errors[i] = -(-H.prop + H.curr)
     # Accept-recject Step
     if(runif(1) < exp(-H.prop + H.curr)){
       
@@ -84,6 +87,6 @@ Multivariate.HMC = function(x0, m, L, obs.time,
   # Important Output
   output(target, K, ESS, accept.rate, x0, no.its, L, obs.time)
   
-  return(list(sample = draws[,1:d], log.target = -draws[,d+1], hamiltonian = draws[,d+2],  
+  return(list(sample = draws[,1:d], log.target = -draws[,d+1], hamiltonian = draws[,d+2], delta.H = ham.errors[-1],  
               ESS = min(ESS), scaled.ESS = min(scaled.ESS), accept.rate = accept.rate))
 }
