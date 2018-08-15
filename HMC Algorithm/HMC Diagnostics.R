@@ -21,28 +21,35 @@ m = 1
 rho0 = rnorm(1, mean  = 0, sd = sqrt(m))
 L = 100
 stepsize = 0.01
-target = 'Logistic'
+target = '1D.Gaussian'
 K = squared.kinetic
 method = leapfrog
 no.its = 10000
 burn.in = 1000
 
-
-stepsize.seq = c(0.01, 0.1, 0.5, 1,2)
-h = matrix(0, nrow = length(stepsize.seq), ncol = L + 1)
+H0 = U(x0, target) + squared.kinetic(rho0, m)
+stepsize.seq = c(0.1, 0.25, 0.5, 2)
+H = matrix(0, nrow = length(stepsize.seq), ncol = L + 1)
 for(i in 1:length(stepsize.seq)){
-  h[i,] = leapfrog(x0, rho0, m, L, obs.time = L*stepsize.seq[i], target, K)$hamiltonian
+  H[i,] = leapfrog(x0, rho0, m, L, obs.time = L*stepsize.seq[i], target, K)$hamiltonian
 }
-par(mfrow =c(1,1))
-plot(x = seq(1, length(h[1,])), y = rep(h[1,1], length(h[1,])), 
-     type = 'l', col = 'green', lty = 2, 
-     ylim= c(min(h),max(h)),
+par(mfrow =c(1,2))
+plot(x = seq(1, L), y = rep(H0, L), 
+     type = 'l', col = 'purple', lty = 2, 
+     ylim= c(H0 - 0.01, max(H[-length(stepsize.seq),]) + 0.03),
      xlab = "Step Number", ylab = "Hamiltonian"
 )
-for(i in 1:length(stepsize.seq)){
-  lines(h[i,], type='l', col = i)
+for(i in 1:(length(stepsize.seq)-1)){
+  lines(H[i,], type='l', col = i, lty = i)
 }
-x = seq(-100, 100, length = 1000)
+legend("topright", lty = 1:(length(stepsize.seq)-1), col = 1:(length(stepsize.seq)-1),
+       legend = c(0.1, 0.25, 0.5), cex = 0.5, bty = "n")
+
+plot(x = seq(1, L), y = rep(H0, L), 
+     type = 'l', col = 'purple', lty = 2, 
+     ylim= c(H0 - 0.01, max(H)), xlab = "", ylab = "")
+
+lines(H[length(stepsize.seq),], type='l', col = 4, lty = 1)
 
 plot(x, grad.U(x, "Logistic"), type = 'l')
 
