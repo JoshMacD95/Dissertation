@@ -77,14 +77,19 @@ Univariate.HMC = function(x0, m, L, obs.time, target, K, method=leapfrog, no.its
 }
 
 theta = 10
-HMC = Univariate.HMC(x0 = rlogis(1, location = 0,scale = 1/theta), m = theta, L = 10, obs.time = 3, target = "Logistic", K = squared.kinetic,
+HMC = Univariate.HMC(x0 = rnorm(1, 0, 1), m = 1, L = 10, obs.time = pi/2, target = "1D.Gaussian", K = squared.kinetic,
                no.its = 10000, burn.in = 1000)
 
+acf(HMC$sample)
+plot(HMC$sample)
 
-# Simulate Random Normal Data to compare with
-#x = rnorm(100000, 0, 1)
-#x = sort(x)
+#Simulate Random Normal Data to compare with
+x = rnorm(100000, 0, 1)
+x = sort(x)
+hist(HMC$sample, freq = F)
+lines(x, dnorm(x))
 
+qqplot(HMC$sample,x)
 # Information about effective sample size
 # https://golem.ph.utexas.edu/category/2014/12/effective_sample_size.html
 

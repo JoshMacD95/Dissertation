@@ -1,0 +1,131 @@
+
+R version 3.3.0 (2016-05-03) -- "Supposedly Educational"
+Copyright (C) 2016 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #'
+> #' Investigating Optimal Acceptance Rate as Dimension increases
+> #'
+> #'
+> #'
+> 
+> 
+> # ==== Preamble ==== 
+> setwd("~/Dissertation/")
+> source("HMC Algorithm/Multivariate HMC Algorithm.R")
+Warning messages:
+1: package ‘coda’ was built under R version 3.3.2 
+2: package ‘mvnfast’ was built under R version 3.3.2 
+> 
+> # ==== Test ====
+> 
+> target = "Prod.Logistic"
+> method = leapfrog
+> no.its = 10000
+> burn.in = 1000
+> 
+> obs.time = 2.5
+> L.list = 1:5
+> stepsize.list = obs.time/L.list
+> d.list = rep(2, 1)
+> 
+> 
+> # Storage
+> ESS = rep(NA, length(L.list)*length(d.list))
+> ESS.L = rep(NA, length(L.list)*length(d.list))
+> AR = rep(NA, length(L.list)*length(d.list))
+> L = rep(NA, length(L.list)*length(d.list))
+> Stepsize = rep(NA, length(L.list)*length(d.list))
+> Dimension = rep(NA, length(L.list)*length(d.list))
+> 
+> # Algorithm
+> for(j in 1:length(d.list)){
++   # Offset parameter so values are stored correctly
++   k = (j-1)*length(L.list)
++   
++   for(i in 1:length(L.list)){
++     # Start in Stationary Distribution
++     theta = 1*((1:d.list[j])%%2 != 0) + 10*((1:d.list[j])%%2 == 0)
++     x0 = rlogis(d.list[j], location = 0, scale = 1/theta)
++     m = theta
++     # Run HMC Algorithm
++     HMC = Multivariate.HMC(x0, m, L.list[i], obs.time, target, K = squared.kinetic, method, no.its, burn.in)
++     
++     # Store Values
++     ESS[k + i] = HMC$ESS
++     ESS.L[k + i] = HMC$scaled.ESS
++     AR[k + i] = HMC$accept.rate
++     L[k + i] = L.list[i]
++     Stepsize[k + i] = stepsize.list[i]
++     Dimension[k + i] = d.list[j]
++   }
++ }
+[1] "Target: Prod.Logistic"
+[1] "Kinetic Energy Function:"                                
+[2] "function (rho, m) \n{\n    return(sum(0.5 * rho^2/m))\n}"
+[1] "Effective Sample Size:" "44.770577631412"       
+[1] "Acceptance Rate:" "0.0246"          
+[1] "Initial Conditions:" "-0.115024521703987"  "0.0530887895354608" 
+[1] "Number of Iterations:" "10000"                
+[1] "Steps" "1"    
+[1] "Observation Time" "2.5"             
+[1] "Target: Prod.Logistic"
+[1] "Kinetic Energy Function:"                                
+[2] "function (rho, m) \n{\n    return(sum(0.5 * rho^2/m))\n}"
+[1] "Effective Sample Size:" "781.627958966853"      
+[1] "Acceptance Rate:" "0.2218"          
+[1] "Initial Conditions:" "-0.947951324392412"  "-0.295070503214428" 
+[1] "Number of Iterations:" "10000"                
+[1] "Steps" "2"    
+[1] "Observation Time" "2.5"             
+[1] "Target: Prod.Logistic"
+[1] "Kinetic Energy Function:"                                
+[2] "function (rho, m) \n{\n    return(sum(0.5 * rho^2/m))\n}"
+[1] "Effective Sample Size:" "3370.27416280926"      
+[1] "Acceptance Rate:" "0.7047"          
+[1] "Initial Conditions:" "1.45009215733478"    "0.416903754258199"  
+[1] "Number of Iterations:" "10000"                
+[1] "Steps" "3"    
+[1] "Observation Time" "2.5"             
+[1] "Target: Prod.Logistic"
+[1] "Kinetic Energy Function:"                                
+[2] "function (rho, m) \n{\n    return(sum(0.5 * rho^2/m))\n}"
+[1] "Effective Sample Size:" "4428.7817955075"       
+[1] "Acceptance Rate:" "0.8468"          
+[1] "Initial Conditions:" "0.072027380993165"   "0.284818358948284"  
+[1] "Number of Iterations:" "10000"                
+[1] "Steps" "4"    
+[1] "Observation Time" "2.5"             
+[1] "Target: Prod.Logistic"
+[1] "Kinetic Energy Function:"                                
+[2] "function (rho, m) \n{\n    return(sum(0.5 * rho^2/m))\n}"
+[1] "Effective Sample Size:" "5214.73609820123"      
+[1] "Acceptance Rate:" "0.9161"          
+[1] "Initial Conditions:" "1.37146397597077"    "0.0364217189741464" 
+[1] "Number of Iterations:" "10000"                
+[1] "Steps" "5"    
+[1] "Observation Time" "2.5"             
+> 
+> output.data = data.frame(Dimension, L, Stepsize, ESS, ESS.L, AR)
+> 
+> # == Save Output ==
+> write.csv(output.data, file = "Output Data/Logistic_HMC_With_Increasing_Dimension.csv")
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 15.125   0.085  15.214 

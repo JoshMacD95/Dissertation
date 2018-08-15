@@ -12,8 +12,8 @@ source("HMC Algorithm/Univariate HMC Algorithm.R")
 
 # ==== Expected Hamiltonian Error is order eps^4 ===
 
-stepsize.list = seq(0.01, 1, by = 0.02)
-L = 1
+stepsize.list = seq(0.01, 2, by = 0.02)
+L = 10
 avg.ham.errors = rep(NA, length(stepsize.list))
 
 
@@ -23,8 +23,9 @@ for(i in 1:length(stepsize.list)){
 }
 rnorm(0,1)
 
-plot(stepsize.list, (avg.ham.errors)^(1/6))
-
+par(mfrow = c(1,2))
+plot(stepsize.list, avg.ham.errors)
+plot(stepsize.list, avg.ham.errors^(1/4))
 eps = seq(0.001, 1, by = 0.001)
 y = eps 
 lines(eps, y, col = 'green', type ='l')

@@ -31,14 +31,17 @@ method = leapfrog
 no.its = 10000
 burn.in = 1000
 
-# Integration time, chosen to be adequate but not optimal
-obs.time = 1.4
 
+d = 10
+stepsize.list = seq(0.01, 2.5, length = 20)/(d^(1/4))
+obs.time = pi/2
 # No. Leapfrog steps to iterate over
 #L.list = c(6, 7, 8, 9, 10, 13, 27)
-L.list = rep(1, 20)
+#L.list = rep(1, 20)
+L.list = rep(round(obs.time/(stepsize.list), digits = 0))
+# Integration time, chosen to be adequate but not optimal
 
-stepsize.list = seq(0.01, 2, length = 20)
+
 
 # Stepsizes to iterate over
 # Stepsize calculated based on Integration time and No. Leapfrog steps
@@ -46,7 +49,7 @@ stepsize.list = seq(0.01, 2, length = 20)
 
 # Dimensions to iterate over
 #d.list = c(2, 5, 10, 50, 100)
-d.list = rep(50, 1)
+d.list = rep(10, 1)
 #stepsize.mat = matrix(0, nrow = length(L.list), ncol = length(d.list))
 
 #for(i in 1:length(L.list)){
@@ -89,8 +92,8 @@ for(j in 1:length(d.list)){
 }
 
 output.data = data.frame(Dimension, L, Stepsize, ESS, ESS.L, AR)
-
-plot(output.data$AR, output.data$ESS.L, xlab = "Acceptance Rate", ylab = "ESS/L", col = 1, ylim = c(0, 1000), xlim = c(0,1))
+View(output.data)
+plot(output.data$AR[output.data$ESS < 9100], output.data$ESS.L[output.data$ESS < 9100], xlab = "Acceptance Rate", ylab = "ESS/L", col = 1, ylim = c(0,9000),xlim = c(0,1))
 
 plot(HMC$sample[,4])
 
@@ -99,14 +102,18 @@ plot(HMC$sample[,4])
 #}
 
 # == Save Output ==
-write.csv(output.data, file = "Logistic Sampling Dimension 100")
+write.csv(output.data, file = "Output Data/MVN Sampling Dimension 2")
 
 # == Load Data ==
-output = read.csv("Dimensionality of HMC")[,-1]
+output = read.csv("Output Data/Logistic Sampling Dimension 100")[,-1]
 
 Dimension = c(2, 5, 10, 20, 50, 100)
 
-plot(output$AR[output$Dimension== 2], output$ESS.L[output$Dimension ==2], col = 1, ylim = c(0, max(output$ESS.L)), xlim = c(0,1))
+plot(output$AR, output$ESS.L, 
+     ylab = "ESS per Leapfrog Step", xlab = "Acceptance Rate", main = "Efficiency of Logisitic Sampling in Dimension 100",
+     col = 1, 
+     ylim = c(0, max(output$ESS.L)), xlim = c(0,1))
+
 for(i in 2:length(Dimension)){
   points(output$AR[output$Dimension == Dimension[i]], output$ESS.L[output$Dimension == Dimension[i]], col = i)
 }
