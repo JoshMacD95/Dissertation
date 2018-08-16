@@ -17,9 +17,9 @@ no.its = 10000
 burn.in = 1000
 
 obs.time = 2.5
-L.list = 1:20
+L.list = 4:20
 stepsize.list = obs.time/L.list
-d.list = rep(c(500, 1000, 10000), 10)
+d.list = rep(c(500, 1000, 10000), 3)
 
 
 # Storage
@@ -63,5 +63,4 @@ for(j in 1:length(d.list)){
 output.data = data.frame(Dimension, L, Stepsize, ESS, ESS.L, AR)
 
 # == Save Output ==
-write.csv(output.data, file = "Output Data/Logistic_HMC_With_Increasing_Dimension2.csv")
-
+write.csv(output.data, file = "Output Data/Logistic_HMC_With_Increasing_Dimension3.csv")
