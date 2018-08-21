@@ -1,0 +1,228 @@
+\documentclass{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+  \usetheme{Warsaw}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+\usepackage{animate}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\title[MCMC using Hamiltonian Dynamics]{Markov Chain Monte Carlo using Hamiltonian Dynamics}
+\author{Joshua James MacDonald}
+\institute{}
+\date{\today}
+\begin{document}
+
+% ===============================================
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Uncomment these lines for an automatically generated outline.
+%\begin{frame}{Outline}
+%  \tableofcontents
+%\end{frame}
+
+% ===============================================
+
+\section{Motivation for HMC}
+
+% ===============================================
+
+\begin{frame}{Performance of MCMC}
+
+\begin{itemize}
+\item MCMC is used to simulate s dependent sample from intractable distributions
+
+\item Performance as dimension grows is important with the rise of Big Data
+
+\item How far can we move with each proposal while keeping a optimal acceptance rate
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Motivation for HMC}
+
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|}
+\hline
+Algorithm & Scaling & Optimal Acceptance Rate $(d \to \infty)$ \\
+\hline
+RWM & $d^{-1/2}$ & $23.4\%$ (Roberts \& Rosenthal 2001) \\
+MALA & $d^{-1/3}$ & $57.4\%$ (Roberts \& Rosenthal 2001) \\
+HMC & $d^{-1/4}$ & $64\%$ (Beskos et. al. 2010) \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ===============================================
+
+\section{Hamiltonian Dynamics}
+
+% ===============================================
+
+\begin{frame}{Extended Parameter Space}
+\begin{itemize}
+\item A ball rolling around a surface
+\item At any time the ball has displacement $x$ and momentum $p$
+\item Also has a mass $m$
+\end{itemize}
+\end{frame}
+% ==== 
+\begin{frame}{The Hamiltonian}
+\begin{equation*}
+U(x) = - \log \{\pi(x)\}
+\end{equation*}
+
+\begin{equation*}
+K(p; m) = \frac{1}{2} \frac{p^2}{m}
+\end{equation*}
+
+\begin{equation*}
+H(x, p; m) = U(x) + K(p;m)
+\end{equation*}
+\end{frame}
+
+% ==== 
+\begin{frame}{Hamiltonian Equations}
+
+\begin{equation*}
+\frac{dx}{dt} = \frac{p}{m}
+\end{equation*}
+
+\begin{equation*}
+\frac{dp}{dt} = - \frac{dU}{dx}
+\end{equation*}
+
+Can be generalised to higher dimensions
+
+\begin{equation*}
+\frac{dx}{dt} = M^{-1}p
+\end{equation*}
+
+\begin{equation*}
+\frac{dp}{dt} = - \nabla U(x)
+\end{equation*}
+
+\end{frame}
+% ==== 
+
+\begin{frame}{1-dimensional Gaussian Example}
+% Graph of N(0,1) Density
+% Graph of log(N(0,1))
+% Graphic of Ball rolling around -log(N(0,1))
+\begin{figure}
+\centering
+\animategraphics[scale = 0.4, loop = true]{30}{Animations/Normal_Potential}{001}{101}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Why Hamiltonian Dynamics}
+\begin{itemize}
+\item Reversibility 
+\item If Hamiltonian is conserved, we have acceptance probability of 1
+\item Volume preservation
+\end{itemize}
+
+\end{frame}
+
+% ====
+
+\begin{frame}{Störmer-Verlet Approximation (Leapfrog)}
+\begin{itemize}
+\item A method of approximating Hamiltonian Dynamics
+
+\item Preserves the desirable properties of Hamiltonian Dynamics
+
+\item Approximately conserves the Hamiltonian
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Störmer-Verlet Approximation (Leapfrog)}
+\begin{itemize}
+\item $T$, Integration Time
+\item $\varepsilon$, stepsize
+\item $L$, Leapfrog steps 
+\end{itemize}
+\begin{equation}
+T = L \varepsilon 
+\end{equation}
+\end{frame}
+
+
+% ===============================================
+
+\begin{frame}{Report Writing and Research}
+
+\begin{itemize}
+\item Gained experience in report writing throughout my University Career \vskip 5mm
+
+\item Logical structure and clear presentation \vskip 5mm
+
+\item Many of these reports included a Literature review which required research
+\end{itemize}
+
+\end{frame}
+
+% ==============================================
+
+\begin{frame}{Communication and Group Work}
+
+\begin{itemize}
+\item I am able to convey statistical/mathematical ideas to non-academics \vskip 5mm 
+
+\item I can work effectively as part of a team \vskip 5mm
+
+\end{itemize}
+
+
+\end{frame}
+
+% ===============================================
+
+\begin{frame}{Computing Experience}
+
+\begin{itemize}
+\item My experience is mostly in Object-orientated computer languages \vskip 5mm
+
+\item Model fitting and writing Simulation Algorithms \vskip 5mm
+
+\item Experienced in using \LaTeX{} for reports and presentations \vskip 5mm 
+
+\end{itemize}
+
+\end{frame}
+
+% ===============================================
+
+\begin{frame}{Questions}
+
+\begin{center}
+Thank you for listening.
+\vskip 0.5cm
+Any Questions?
+
+\end{center}
+
+\end{frame}
+
+
+\end{document}
