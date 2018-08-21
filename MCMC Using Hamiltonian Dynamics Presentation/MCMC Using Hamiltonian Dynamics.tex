@@ -42,7 +42,7 @@
 \begin{frame}{Performance of MCMC}
 
 \begin{itemize}
-\item MCMC is used to simulate s dependent sample from intractable distributions
+\item MCMC is used to simulate a dependent sample from intractable distributions
 
 \item Performance as dimension grows is important with the rise of Big Data
 
@@ -132,84 +132,92 @@ Can be generalised to higher dimensions
 \end{figure}
 \end{frame}
 
+% ====
 
-\begin{frame}{Why Hamiltonian Dynamics}
+\begin{frame}{Why Hamiltonian Dynamics?}
 \begin{itemize}
-\item Reversibility 
-\item If Hamiltonian is conserved, we have acceptance probability of 1
-\item Volume preservation
+\item Reversibility of Hamiltonian Dynamics ensures Detailed Balance. \vskip 5mm
+
+\item If Hamiltonian is conserved, we have acceptance probability of 1 \vskip 5mm
+
+\item Volume Preservation \vskip 5mm
+\end{itemize}
+\end{frame}
+
+% ====
+
+\begin{frame}{Leapfrog Approximation (Störmer-Verlet)}
+
+\begin{itemize}
+\item A method of approximating Hamiltonian Dynamics \vskip 5mm
+
+\item Preserves the desirable properties of Hamiltonian Dynamics \vskip 5mm
+
+\item Approximately conserves the Hamiltonian \vskip 5mm
+
+\item $T$, Integration Time \vskip 5mm 
+
+\item $\varepsilon$, stepsize \vskip 5mm
+
+\item $L$, Leapfrog steps \vskip 5mm
+\end{itemize}
+
+\begin{equation}
+T = L \varepsilon 
+\end{equation}
+
+\end{frame}
+
+% ===============================================
+\section{HMC Algorithm}
+% ==============================================
+
+\begin{frame}{HMC Algorithm}
+\begin{itemize}
+
+\item We have some position $x$.
+
+\item Draw a new momentum $ p \sim \mathcal{N}(0, M)$.
+
+\item Approximate Hamiltonian Dynamics for time $T$ in $L$ steps, using stepsize $\varepsilon$. 
+
+\item Proposes new position and momentum $(x^{*}, p^{*})$. 
+
+\item Accept proposal with probability $$ \alpha(x^{*}, p^{*} ;x, p) = \min \Big{\{} 1, \exp(-(H(x^{*}, p^{*};M) - H(x,p;M)) \Big{\}} $$
+\end{itemize}
+
+\end{frame}
+
+
+% ===============================================
+\section{Tuning the HMC Algorithm}
+% ===============================================
+
+\begin{frame}{Choosing a Stepsize}
+
+\begin{itemize}
+\item Leapfrog Approximation can become unstable if the chosen stepsize is too large
+
+\item On the other hand,  if the chosen stepsize is too smaller, the approximation becomes intensive.
+
+\item Find a range of stepsizes which perform suitably
 \end{itemize}
 
 \end{frame}
 
 % ====
 
-\begin{frame}{Störmer-Verlet Approximation (Leapfrog)}
-\begin{itemize}
-\item A method of approximating Hamiltonian Dynamics
+\begin{frame}{Choosing the Integration Time}
 
-\item Preserves the desirable properties of Hamiltonian Dynamics
 
-\item Approximately conserves the Hamiltonian
-
-\end{itemize}
 \end{frame}
 
+% ==== 
 
-\begin{frame}{Störmer-Verlet Approximation (Leapfrog)}
-\begin{itemize}
-\item $T$, Integration Time
-\item $\varepsilon$, stepsize
-\item $L$, Leapfrog steps 
-\end{itemize}
-\begin{equation}
-T = L \varepsilon 
-\end{equation}
+\begin{frame}{Optimal Acceptance Rate}
+
 \end{frame}
-
-
 % ===============================================
-
-\begin{frame}{Report Writing and Research}
-
-\begin{itemize}
-\item Gained experience in report writing throughout my University Career \vskip 5mm
-
-\item Logical structure and clear presentation \vskip 5mm
-
-\item Many of these reports included a Literature review which required research
-\end{itemize}
-
-\end{frame}
-
-% ==============================================
-
-\begin{frame}{Communication and Group Work}
-
-\begin{itemize}
-\item I am able to convey statistical/mathematical ideas to non-academics \vskip 5mm 
-
-\item I can work effectively as part of a team \vskip 5mm
-
-\end{itemize}
-
-
-\end{frame}
-
-% ===============================================
-
-\begin{frame}{Computing Experience}
-
-\begin{itemize}
-\item My experience is mostly in Object-orientated computer languages \vskip 5mm
-
-\item Model fitting and writing Simulation Algorithms \vskip 5mm
-
-\item Experienced in using \LaTeX{} for reports and presentations \vskip 5mm 
-
-\end{itemize}
-
-\end{frame}
 
 % ===============================================
 

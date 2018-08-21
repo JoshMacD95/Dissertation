@@ -6,9 +6,9 @@
 # ==== Preamble ====
 
 source("Numerical Methods/Numerical Methods for systems of Diff Eqns.R")
+source("HMC Algorithm/Multivariate HMC Algorithm")
 
 # ==== Creating Data ====
-
 # Creating Density Values
 x = seq(-4, 4, length = 10000)
 pi_x = dnorm(x)
@@ -23,6 +23,7 @@ leapfrog.pts = numerical.method(x0 = rnorm(1), rho0 = 3, m = 1, L = 100, obs.tim
 
 # ==== Plots ====
 
+# Exhibiting Hamiltonian Dynamics
 for(i in 1:length(leapfrog.pts)){
   suffix = c(rep(0, nchar(length(leapfrog.pts)) - nchar(i)), i, "", "", "")
   plotname = paste('MCMC using Hamiltonian Dynamics Presentation/Animations/Normal_Potential', suffix[1], suffix[2], suffix[3], suffix[4], ".png" , sep = "" )
@@ -34,6 +35,14 @@ for(i in 1:length(leapfrog.pts)){
   points(leapfrog.pts[i], U(leapfrog.pts[i], target = "1D.Gaussian"), col = 'tomato2', cex = 2, pch =16)
   dev.off()
 }
+
+
+
+
+
+
+
+
 
 
 
