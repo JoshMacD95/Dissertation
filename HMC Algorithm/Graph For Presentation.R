@@ -5,7 +5,6 @@
 
 # ==== Preamble ====
 
-library(ggplot2)
 source("Numerical Methods/Numerical Methods for systems of Diff Eqns.R")
 
 # ==== Creating Data ====
@@ -26,13 +25,13 @@ leapfrog.pts = numerical.method(x0 = rnorm(1), rho0 = 3, m = 1, L = 100, obs.tim
 
 for(i in 1:length(leapfrog.pts)){
   suffix = c(rep(0, nchar(length(leapfrog.pts)) - nchar(i)), i, "", "", "")
-  plotname = paste('Graphs/Animations/Normal_Potential', suffix[1], suffix[2], suffix[3], suffix[4], ".jpg" , sep = "" )
-  jpeg(plotname)
+  plotname = paste('MCMC using Hamiltonian Dynamics Presentation/Animations/Normal_Potential', suffix[1], suffix[2], suffix[3], suffix[4], ".png" , sep = "" )
+  png(plotname, width = 680, height = 480, units = 'px')
   par(mfrow = c(1,3))
-  plot(x, pi_x)
-  plot(x, log_pi_x)
-  plot(x, neg_log_pi_x)
-  points(leapfrog.pts[i], U(leapfrog.pts[i], target = "1D.Gaussian"))
+  plot(x, pi_x, type = 'l', col = 'blue', ylab = expression(pi(x)), main = "N(0,1) Target")
+  plot(x, log_pi_x, type = 'l', col = 'blue', xlab = expression(x), ylab = expression(log(pi(x))), main = "log(N(0,1))")
+  plot(x, neg_log_pi_x, type = 'l', ylab = expression(U(x)), col = 'blue', main = " Potential Surface U(x)")
+  points(leapfrog.pts[i], U(leapfrog.pts[i], target = "1D.Gaussian"), col = 'tomato2', cex = 2, pch =16)
   dev.off()
 }
 
