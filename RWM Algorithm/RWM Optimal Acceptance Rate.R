@@ -15,8 +15,8 @@ proposal = "Std.Gaussian"
 no.its = 10000
 burn.in = 1000
 
-lambda.list = seq(0.001, 3, length = 20)
-d.list = rep(50, 10)
+lambda.list = seq(0.001, 3, length = 50)
+d.list = rep(12, 10)
 
 
 # Storage
@@ -57,7 +57,7 @@ for(j in 1:length(d.list)){
 
 output.data = data.frame(Dimension, lambda, ESS, ESS.sec, AR)
 
-plot(output.data$AR, output.data$ESS.sec, ylim = c(0,50))
-abline(v = 0.24, col = 'red', lty = 2)
+plot(output.data$AR, output.data$ESS.sec,ylim = c(0,400))
+abline(v = 0.234, col = 'red', lty = 2)
 # == Save Output ==
-write.csv(output.data, file = "Output Data/Optimal_RWMDimension50.csv")
+write.csv(output.data, file = "Output Data/Optimal_RWMDimension12_2.csv")

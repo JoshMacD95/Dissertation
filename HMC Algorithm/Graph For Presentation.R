@@ -26,27 +26,43 @@ leapfrog.pts = numerical.method(x0 = rnorm(1), rho0 = 3, m = 1, L = 100, obs.tim
 # Exhibiting Hamiltonian Dynamics
 for(i in 1:length(leapfrog.pts)){
   suffix = c(rep(0, nchar(length(leapfrog.pts)) - nchar(i)), i, "", "", "")
-  plotname = paste('MCMC using Hamiltonian Dynamics Presentation/Animations/Normal_Potential', suffix[1], suffix[2], suffix[3], suffix[4], ".png" , sep = "" )
+  plotname = paste('MCMC using Hamiltonian Dynamics Presentation/Animations/First_Normal_Potential', suffix[1], suffix[2], suffix[3], suffix[4], ".png" , sep = "" )
   png(plotname, width = 680, height = 480, units = 'px')
-  par(mfrow = c(1,3))
-  plot(x, pi_x, type = 'l', col = 'blue', ylab = expression(pi(x)), main = "N(0,1) Target")
-  plot(x, log_pi_x, type = 'l', col = 'blue', xlab = expression(x), ylab = expression(log(pi(x))), main = "log(N(0,1))")
+  par(mfrow = c(1,1))
+  #plot(x, pi_x, type = 'l', col = 'blue', ylab = expression(pi(x)), main = "N(0,1) Target")
+  #plot(x, log_pi_x, type = 'l', col = 'blue', xlab = expression(x), ylab = expression(log(pi(x))), main = "log(N(0,1))")
   plot(x, neg_log_pi_x, type = 'l', ylab = expression(U(x)), col = 'blue', main = " Potential Surface U(x)")
   points(leapfrog.pts[i], U(leapfrog.pts[i], target = "1D.Gaussian"), col = 'tomato2', cex = 2, pch =16)
   dev.off()
 }
 
+# Plotting RWM Optimal Acceptance Rate graphs
+
+RWM.output2 = read.csv("Output Data/Optimal_RWMDimension2.csv")
+RWM.output4 = read.csv("Output Data/Optimal_RWMDimension4.csv")
+RWM.output8 = read.csv("Output Data/Optimal_RWMDimension8.csv")
+RWM.output12 = read.csv("Output Data/Optimal_RWMDimension12.csv")
+
+plot(RWM.output2$AR, RWM.output2$ESS.sec, main = "RWM Algorithm, Multivariate Normal Target Dimension 2",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate')
+
+abline(v = 0.234, col = 'red', lty = 2)
+
+plot(RWM.output4$AR, RWM.output4$ESS.sec, main = "RWM Algorithm, Multivariate Normal Target Dimension 4",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate')
+
+abline(v = 0.234, col = 'red', lty = 2)
 
 
+plot(RWM.output8$AR, RWM.output8$ESS.sec, main = "RWM Algorithm, Multivariate Normal Target Dimension 8",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate', ylim = c(0,700))
 
+abline(v = 0.234, col = 'red', lty = 2)
 
+plot(RWM.output12$AR, RWM.output12$ESS.sec, main = "RWM Algorithm, Multivariate Normal Target Dimension 12",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate', ylim = c(0,500))
 
-
-
-
-
-
-
+abline(v = 0.234, col = 'red', lty = 2)
 
 
 

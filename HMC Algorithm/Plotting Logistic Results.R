@@ -4,13 +4,30 @@
 #'
 #'
 
-output.lower = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension (2, 4, 10, 50, 100).csv")
+HMC.output.lower = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension (2, 4, 10, 50, 100).csv")
 
-output.100 = output.lower[output.lower$Dimension == 100,]
-output.500 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension (500).csv")
-output.1000 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension(1000).csv")
+HMC.output.100 = HMC.output.lower[HMC.output.lower$Dimension == 100,]
+HMC.output.500 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension (500).csv")
+HMC.output.1000 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension(1000).csv")
 
-output = rbind(output.lower, output.500, output.1000)
+
+
+plot(HMC.output.100$AR, HMC.output.100$ESS.L, main = "HMC Algorithm, Stretched Logistic Target Dimension 100",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate')
+
+abline(v = 0.65, col = 'red', lty = 2)
+
+plot(HMC.output.500$AR, HMC.output.500$ESS.L, main = "HMC Algorithm, Stretched Logistic Target Dimension 500",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate')
+
+abline(v = 0.65, col = 'red', lty = 2)
+
+plot(HMC.output.1000$AR, HMC.output.1000$ESS.L, main = "HMC Algorithm, Stretched Logistic Target Dimension 1000",
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate')
+
+abline(v = 0.65, col = 'red', lty = 2)
+
+
 
 median.ESS.L = c()
 UQ.ESS.L = c()
