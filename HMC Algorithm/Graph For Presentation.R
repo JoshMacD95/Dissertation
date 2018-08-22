@@ -6,7 +6,7 @@
 # ==== Preamble ====
 
 source("Numerical Methods/Numerical Methods for systems of Diff Eqns.R")
-source("HMC Algorithm/Multivariate HMC Algorithm")
+source("HMC Algorithm/Multivariate HMC Algorithm.R")
 
 # ==== Creating Data ====
 # Creating Density Values
@@ -41,7 +41,7 @@ for(i in 1:length(leapfrog.pts)){
 RWM.output2 = read.csv("Output Data/Optimal_RWMDimension2.csv")
 RWM.output4 = read.csv("Output Data/Optimal_RWMDimension4.csv")
 RWM.output8 = read.csv("Output Data/Optimal_RWMDimension8.csv")
-RWM.output12 = read.csv("Output Data/Optimal_RWMDimension12.csv")
+RWM.output12 = read.csv("Output Data/Optimal_RWMDimension12_2.csv")
 
 plot(RWM.output2$AR, RWM.output2$ESS.sec, main = "RWM Algorithm, Multivariate Normal Target Dimension 2",
      ylab = 'ESS/sec', xlab = 'Acceptance Rate')
@@ -60,25 +60,43 @@ plot(RWM.output8$AR, RWM.output8$ESS.sec, main = "RWM Algorithm, Multivariate No
 abline(v = 0.234, col = 'red', lty = 2)
 
 plot(RWM.output12$AR, RWM.output12$ESS.sec, main = "RWM Algorithm, Multivariate Normal Target Dimension 12",
-     ylab = 'ESS/sec', xlab = 'Acceptance Rate', ylim = c(0,500))
+     ylab = 'ESS/sec', xlab = 'Acceptance Rate', ylim = c(0,300))
 
 abline(v = 0.234, col = 'red', lty = 2)
 
+HMC.output1 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension (2, 4, 10, 50, 100).csv")
+HMC.output2 = HMC.output1[HMC.output1$Dimension==2,]
+HMC.output100 = HMC.output1[HMC.output1$Dimension==100,]
+HMC.output500 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension (500)2.csv")
+HMC.output1000 = read.csv("Output Data/Logistic_HMC_With_Increasing_Dimension(1000).csv")
+
+# ==== ESS vs. L ====
+
+mean.ESS = c()
+mean.ESS.L = c()
+for(i in 1:20){
+  mean.ESS.L[i] = mean(HMC.output2$ESS.L[HMC.output100$L==i])
+  mean.ESS[i] = mean(HMC.output2$ESS[HMC.output100$L==i])
+}
+par(mfrow = c(1,2))
+plot(1:20, mean.ESS, ylab = "Mean ESS", xlab = "L", pch = 16, col ='light blue')
+plot(1:20, mean.ESS.L, ylab = "Mean ESS/L", xlab = "L", ylim = c(0, 1300), pch = 16, col ='tomato2')
+# ==== Optimal Acceptance Rate Graphs ====
+plot(HMC.output100$AR, HMC.output100$ESS.L, main = "HMC Algorithm, Stetched Logistic Target Dimension 100",
+     ylab = 'ESS/L', xlab = 'Acceptance Rate')
+
+abline(v = 0.65, col = 'red', lty = 2)
+
+plot(HMC.output500$AR, HMC.output500$ESS.L, main = "HMC Algorithm, Stretched Logistic Target Dimension 500",
+     ylab = 'ESS/L', xlab = 'Acceptance Rate')
+
+abline(v = 0.65, col = 'red', lty = 2)
 
 
+plot(HMC.output1000$AR, HMC.output1000$ESS.L, main = "HMC Algorithm, Stretched Logistic Target Dimension 1000",
+     ylab = 'ESS/L', xlab = 'Acceptance Rate')
 
-
-
-
-
-
-
-
-
-
-
-
-
+abline(v = 0.65, col = 'red', lty = 2)
 
 
 

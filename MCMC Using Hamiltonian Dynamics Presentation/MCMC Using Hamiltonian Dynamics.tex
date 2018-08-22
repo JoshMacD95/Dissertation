@@ -33,40 +33,22 @@
 %  \tableofcontents
 %\end{frame}
 
-% ===============================================
-
-\section{Motivation for HMC}
 
 % ===============================================
 
-\begin{frame}{Performance of MCMC}
+\section{Aims}
+
+% ===============================================
+\begin{frame}{Aims}
 
 \begin{itemize}
-\item MCMC is used to simulate a dependent samples from intractable distributions \vskip 5mm
 
-\item  The Performance of MCMC in high dimensions has become important with the rise of Big Data \vskip 5mm
+\item Understand why Hamiltonian Monte Carlo works \vskip 5mm
 
-\item How far can we move with each proposal while keeping a reasonable acceptance rate? \vskip 5mm
+\item Tuning the HMC Algorithm \vskip 5mm
 
+\item Investigating Scaling with Dimension and Optimal Acceptance Rate 
 \end{itemize}
-
-\end{frame}
-
-
-\begin{frame}{Motivation for HMC}
-
-\begin{table}
-\centering
-\begin{tabular}{|c||c|c|}
-\hline
-Algorithm & Scaling & Optimal Acceptance Rate $(d \to \infty)$ \\
-\hline
-RWM & $d^{-1/2}$ & $23.4\%$ (Roberts \& Rosenthal 2001) \\
-MALA & $d^{-1/3}$ & $57.4\%$ (Roberts \& Rosenthal 2001) \\
-HMC & $d^{-1/4}$ & $64\%$ (Beskos et. al. 2010) \\
-\hline
-\end{tabular}
-\end{table}
 
 \end{frame}
 
@@ -76,20 +58,21 @@ HMC & $d^{-1/4}$ & $64\%$ (Beskos et. al. 2010) \\
 
 % ===============================================
 
-\begin{frame}{Extended Parameter Space}
+
+\begin{frame}{Hamiltonian Parameter Space}
 \begin{itemize}
 \item A ball rolling around a potential surface \vskip 5mm
-\item At any time the ball has displacement $x$ and momentum $p$ \vskip 5mm
+\item At any time the ball has position $x$ and momentum $p$ \vskip 5mm
 \item Also has a mass $m$ \vskip 5mm
 \end{itemize}
 \end{frame}
 % ==== 
 
-\begin{frame}{Hamiltonian Dynamics}
+\begin{frame}{A Simple Potential Surface}
 
 \begin{figure}
 \centering
-\animategraphics[scale = 0.4, loop = true]{20}{Animations/First_Normal_Potential}{001}{101}
+\animategraphics[scale = 0.3, loop = true]{20}{Animations/First_Normal_Potential}{001}{101}
 \end{figure}
 \end{frame}
 
@@ -125,11 +108,11 @@ H(x, p; m) = U(x) + K(p;m)
 Can be generalised to higher dimensions
 
 \begin{equation*}
-\frac{dx}{dt} = M^{-1}p
+\frac{d\bf{x}}{dt} = M^{-1}\bf{p}
 \end{equation*}
 
 \begin{equation*}
-\frac{dp}{dt} = - \nabla U(x)
+\frac{d\bf{p}}{dt} = - \nabla U(\bf{x})
 \end{equation*}
 
 \end{frame}
@@ -141,7 +124,7 @@ Can be generalised to higher dimensions
 % Graphic of Ball rolling around -log(N(0,1))
 \begin{figure}
 \centering
-\animategraphics[scale = 0.4, loop = true]{20}{Animations/Normal_Potential}{001}{101}
+\animategraphics[scale = 0.3, loop = true]{20}{Animations/Normal_Potential}{001}{101}
 \end{figure}
 \end{frame}
 
@@ -223,28 +206,88 @@ Can be generalised to higher dimensions
 \section{Tuning the HMC Algorithm}
 % ===============================================
 
+
+\begin{frame}{Choosing the Integration Time}
+
+\begin{itemize}
+
+\item The distance moved in a prosposal can be directly controlled by $T$ \vskip 5mm
+
+\item This doesn't affect the acceptance probability \vskip 5mm
+
+\item Hard to know what values of $T$ will be sensible
+
+\end{itemize}
+
+\end{frame}
+
+
 \begin{frame}{Choosing a Stepsize}
 
 \begin{itemize}
-\item Approximation can become unstable if the chosen stepsize is too large
 
-\item On the other hand,  if the chosen stepsize is too smaller, the approximation becomes intensive.
+\item Error in the Approximation is controlled by the stepsize. \vskip 5mm
 
-\item Find a range of stepsizes which perform suitably
+\item Approximation can become unstable if the chosen stepsize is too large \vskip 5mm
 \end{itemize}
+
+\begin{figure}
+\includegraphics[scale = 0.3]{Leapfrog_Errors.jpeg}
+\end{figure}
 
 \end{frame}
 
 % ====
 
-\begin{frame}{Choosing the Integration Time}
+\begin{frame}{Choosing the Number of Steps}
 
+\begin{itemize}
+\item  \vskip 5mm
+
+\item Find a range of stepsizes which perform suitably \vskip 5mm
+\end{itemize}
 
 \end{frame}
 
+
+
 % ===============================================
-\section{Optimal Acceptance Rates}
+
+\section{Scaling and Optimal Acceptance Rate}
+
 % ===============================================
+
+\begin{frame}{Scaling and Optimal Acceptance Rate}
+
+\begin{itemize}
+
+\item  The Performance of MCMC in high dimensions has become important with the rise of Big Data \vskip 5mm
+
+\item How far can we move with each proposal while keeping a reasonable acceptance rate? \vskip 5mm
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Scaling with Dimension}
+
+\begin{table}
+\centering
+\begin{tabular}{|c||c|c|}
+\hline
+Algorithm & Scaling & Optimal Acceptance Rate $(d \to \infty)$ \\
+\hline
+RWM & $d^{-1/2}$ & $23.4\%$ (Roberts \& Rosenthal 2001) \\
+MALA & $d^{-1/3}$ & $57.4\%$ (Roberts \& Rosenthal 2001) \\
+HMC & $d^{-1/4}$ & $65\%$ (Beskos et. al. 2010) \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ====
 
 \begin{frame}{Optimal Acceptance Rate: RWM}
 
@@ -278,15 +321,59 @@ Can be generalised to higher dimensions
 \begin{frame}{Optimal Acceptance Rate: RWM}
 \begin{figure}
 \centering
-\includegraphics[scale = 0.4]{RWM_Optimal8.png}
+\includegraphics[scale = 0.3]{RWM_Optimal12.png}
+\end{figure}
+\end{frame}
+
+% ====
+
+\begin{frame}{Optimal Acceptance Rate: HMC}
+
+\begin{figure}
+\centering
+\includegraphics[scale = 0.3]{HMC_Optimal100.png}
+\end{figure}
+
+\end{frame}
+
+% ==== 
+
+\begin{frame}{Optimal Acceptance Rate: HMC}
+\begin{figure}
+\centering
+\includegraphics[scale = 0.3]{HMC_Optimal500.png}
+\end{figure}
+\end{frame}
+
+% ==== 
+
+\begin{frame}{Optimal Acceptance Rate: HMC}
+\begin{figure}
+\centering
+\includegraphics[scale = 0.3]{HMC_Optimal1000.png}
 \end{figure}
 \end{frame}
 
 % ===============================================
 
+\section{Conclusion}
+
 % ===============================================
 
-\begin{frame}{Questions}
+
+\begin{frame}{Further Topics}
+
+\begin{itemize}
+
+\item Reversibility 
+
+\item Störmer-Verlet Approximation 
+
+\item Partial Momentum Refreshment
+
+\item Relativistic Monte Carlo
+
+\end{itemize}
 
 \begin{center}
 Thank you for listening.
@@ -294,6 +381,24 @@ Thank you for listening.
 Any Questions?
 
 \end{center}
+
+
+\end{frame}
+
+
+\end{document}
+
+
+\begin{frame}{References}
+
+\begin{enumerate}
+\item
+
+\item
+
+\item
+\end{enumerate}
+
 
 \end{frame}
 
