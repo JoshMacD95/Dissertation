@@ -1,8 +1,1 @@
-\beamer@endinputifotherversion {3.36pt}
-\select@language {english}
-\beamer@sectionintoc {1}{Aims}{2}{0}{1}
-\beamer@sectionintoc {2}{Hamiltonian Dynamics}{3}{0}{2}
-\beamer@sectionintoc {3}{HMC Algorithm}{9}{0}{3}
-\beamer@sectionintoc {4}{Tuning the HMC Algorithm}{10}{0}{4}
-\beamer@sectionintoc {5}{Scaling and Optimal Acceptance Rate}{13}{0}{5}
-\beamer@sectionintoc {6}{Conclusion}{22}{0}{6}
+\babel@toc {english}{}

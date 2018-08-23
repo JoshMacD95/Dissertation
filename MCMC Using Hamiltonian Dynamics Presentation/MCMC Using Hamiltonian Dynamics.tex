@@ -10,8 +10,9 @@
   \usetheme{Warsaw}      % or try Darmstadt, Madrid, Warsaw, ...
   \usecolortheme{default} % or try albatross, beaver, crane, ...
   \usefonttheme{default}  % or try serif, structurebold, ...
-  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{}{}
   \setbeamertemplate{caption}[numbered]
+  
 } 
 \usepackage{animate}
 \usepackage[english]{babel}
@@ -21,7 +22,7 @@
 \institute{}
 \date{\today}
 \begin{document}
-
+\beamertemplatenavigationsymbolsempty
 % ===============================================
 
 \begin{frame}
@@ -36,7 +37,7 @@
 
 % ===============================================
 
-\section{Aims}
+%\section{Aims}
 
 % ===============================================
 \begin{frame}{Aims}
@@ -54,7 +55,7 @@
 
 % ===============================================
 
-\section{Hamiltonian Dynamics}
+%\section{Hamiltonian Dynamics}
 
 % ===============================================
 
@@ -72,7 +73,7 @@
 
 \begin{figure}
 \centering
-\animategraphics[scale = 0.3, loop = true]{20}{Animations/First_Normal_Potential}{001}{101}
+\animategraphics[scale = 0.4, loop = true]{20}{Animations/First_Normal_Potential}{001}{101}
 \end{figure}
 \end{frame}
 
@@ -124,7 +125,7 @@ Can be generalised to higher dimensions
 % Graphic of Ball rolling around -log(N(0,1))
 \begin{figure}
 \centering
-\animategraphics[scale = 0.3, loop = true]{20}{Animations/Normal_Potential}{001}{101}
+\animategraphics[scale = 0.4, loop = true]{20}{Animations/Normal_Potential}{001}{101}
 \end{figure}
 \end{frame}
 
@@ -182,7 +183,7 @@ Can be generalised to higher dimensions
 %\end{frame}
 
 % ===============================================
-\section{HMC Algorithm}
+%\section{HMC Algorithm}
 % ==============================================
 
 \begin{frame}{HMC Algorithm}
@@ -203,7 +204,7 @@ Can be generalised to higher dimensions
 
 
 % ===============================================
-\section{Tuning the HMC Algorithm}
+%\section{Tuning the HMC Algorithm}
 % ===============================================
 
 
@@ -242,10 +243,18 @@ Can be generalised to higher dimensions
 \begin{frame}{Choosing the Number of Steps}
 
 \begin{itemize}
-\item  \vskip 5mm
+\item Choose a range of steps \vskip 5mm
 
-\item Find a range of stepsizes which perform suitably \vskip 5mm
+\item Calculate the corresponding stepsize $\varepsilon = T/L$ \vskip 5mm
+
+\item Perform HMC with these stepsizes \vskip 5mm
 \end{itemize}
+
+\begin{figure}
+
+\includegraphics[scale = 0.3]{Lvs_ESS.png}
+
+\end{figure}
 
 \end{frame}
 
@@ -253,24 +262,16 @@ Can be generalised to higher dimensions
 
 % ===============================================
 
-\section{Scaling and Optimal Acceptance Rate}
+%\section{Scaling and Optimal Acceptance Rate}
 
 % ===============================================
 
 \begin{frame}{Scaling and Optimal Acceptance Rate}
 
 \begin{itemize}
-
-\item  The Performance of MCMC in high dimensions has become important with the rise of Big Data \vskip 5mm
-
-\item How far can we move with each proposal while keeping a reasonable acceptance rate? \vskip 5mm
-
+\item The Performance of MCMC in high dimensions has become important with the rise of Big Data \vskip 5mm
 \end{itemize}
 
-\end{frame}
-
-
-\begin{frame}{Scaling with Dimension}
 
 \begin{table}
 \centering
@@ -356,7 +357,7 @@ HMC & $d^{-1/4}$ & $65\%$ (Beskos et. al. 2010) \\
 
 % ===============================================
 
-\section{Conclusion}
+%\section{Conclusion}
 
 % ===============================================
 
