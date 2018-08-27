@@ -5,10 +5,12 @@
 #'
 
 # ==== Preamble ====
+
 source("RWM Algorithm/Functions for RWM.R")
 library(coda)
+
 # ==== The Algorithm ====
-Multivariate.RWM=function(no.its, lambda,target="Std.Gaussian",proposal="Std.Gaussian", x0, burn.in){
+Multivariate.RWM=function(no.its, lambda,target="Std.Gaussian",proposal="Std.Gaussian", x0, prop.V, burn.in){
   
   time.start = Sys.time()
   d = length(x0)
@@ -20,7 +22,7 @@ Multivariate.RWM=function(no.its, lambda,target="Std.Gaussian",proposal="Std.Gau
 
   draws[1,] = c(x.curr, log.density.curr)
   for(i in 1:no.its){
-    z=propose(proposal, d)
+    z=propose(proposal, d, V = prop.V)
     # Proposed Value is Current Value plus random noise from proposal dist.n
     # Lambda controls the 
     x.prop = x.curr + lambda*z
@@ -61,5 +63,10 @@ Multivariate.RWM=function(no.its, lambda,target="Std.Gaussian",proposal="Std.Gau
   return(list(sample = draws[,1:d], target.density = exp(draws[,d+1]),  
               ESS = min(ESS), scaled.ESS = min(scaled.ESS), accept.rate = accept.rate))
 }
+
+
+
+
+
 
        

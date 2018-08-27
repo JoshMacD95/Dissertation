@@ -7,17 +7,15 @@
 # ==== Preamble ====
 library(mvnfast)
 
-
-
-
-
-log.density=function(x,target) 
-{
-  if (target=="Std.Gaussian") { # standard normal
+log.density=function(x,target){
+  if(target=="Std.Gaussian"){ # standard normal
     d = length(x)
     ld=dmvn(x, mu = rep(0, d), sigma = diag(1, d), log = TRUE)
   }
-  
+  else if(target == "Stretched.Gaussian"){
+    d = length(x)
+    ld=dmvn(x, mu = rep(0, d), sigma = diag(c(1,10), d), log = TRUE)
+  }
   else if(target == "Prod.Logistic"){
     i = seq(1, length(x))
     theta = 10*(i%%2 == 0) + 1*(i%%2 != 0)
@@ -46,9 +44,9 @@ log.density=function(x,target)
 # Create a proposal with scale parameter 1
 #
 
-propose=function(proposal, d) {
+propose=function(proposal, d, V) {
   if (proposal=="Std.Gaussian") {
-    z=rmvn(1, mu = rep(0, d), sigma = diag(1, d))
+    z=rmvn(1, mu = rep(0, d), sigma = V)
   }
   else if (proposal=="Laplace") { # 0.5 exp(-|x|)
     z=sample(c(-1,1),1)*rexp(1)

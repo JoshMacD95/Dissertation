@@ -13,10 +13,10 @@ library(utils)
 target = "Std.Gaussian"
 proposal = "Std.Gaussian"
 no.its = 10000
-burn.in = 1000
+burn.in = 0
 
-lambda.list = seq(0.001, 3, length = 50)
-d.list = rep(12, 10)
+lambda.list = seq(0.001, 10, length = 50)
+d.list = rep(1, 10)
 
 
 # Storage
@@ -49,7 +49,7 @@ for(j in 1:length(d.list)){
     ESS[k + i] = RWM$ESS
     ESS.sec[k + i] = RWM$scaled.ESS
     AR[k + i] = RWM$accept.rate
-    lambda[i] = lambda.list[i]
+    lambda[k + i] = lambda.list[i]
     Dimension[k + i] = d.list[j]
     setTxtProgressBar(pb, k+i)
   }
@@ -57,7 +57,9 @@ for(j in 1:length(d.list)){
 
 output.data = data.frame(Dimension, lambda, ESS, ESS.sec, AR)
 
-plot(output.data$AR, output.data$ESS.sec,ylim = c(0,400))
+par(mfrow = c(1,1))
+
+plot(output.data$AR, output.data$ESS.sec,ylim = c(0,3000))
 abline(v = 0.234, col = 'red', lty = 2)
 # == Save Output ==
-write.csv(output.data, file = "Output Data/Optimal_RWMDimension12_2.csv")
+write.csv(output.data, file = "Output Data/Optimal_RWMDimension1.csv")
